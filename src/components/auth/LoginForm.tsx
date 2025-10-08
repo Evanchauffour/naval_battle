@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { useUserActions } from "../../store/user.store";
 import { Button } from "../ui/button";
 import FormInput from "../ui/FormInput";
 
@@ -22,6 +23,7 @@ export default function LoginForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
+  const { setUser } = useUserActions();
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -34,6 +36,7 @@ export default function LoginForm() {
         },
       });
       if (response.ok) {
+        setUser(await response.json());
         toast.success('Connexion réussie');
         router.push('/');
       } else {

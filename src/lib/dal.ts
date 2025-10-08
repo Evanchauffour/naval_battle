@@ -9,11 +9,14 @@ export const verifySession = cache(async () => {
   const cookie = (await cookies()).get('accessToken')?.value
   const session = await decrypt(cookie)
 
-  console.log(session)
-
   if (!session?.id) {
     redirect('/signin')
   }
 
   return { isAuth: true, userId: session.id }
+})
+
+export const getUser = cache(async () => {
+  const session = await verifySession()
+  return session.userId
 })
