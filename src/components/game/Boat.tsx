@@ -1,9 +1,9 @@
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from '@dnd-kit/utilities';
 import type React from 'react';
-import type { Boat } from "./CurrentPlayerGrid";
+import { BoatInterface } from "./Game";
 
-export default function Boat({ boatData, className, gridSize, disabled }: { boatData: Boat; className?: string; gridSize: number; disabled?: boolean }) {
+export default function Boat({ boatData, className, gridSize, disabled }: { boatData: BoatInterface; className?: string; gridSize: number; disabled?: boolean }) {
   const {attributes, listeners, setNodeRef, transform} = useDraggable({
     disabled,
     id: boatData.id,
@@ -22,7 +22,7 @@ export default function Boat({ boatData, className, gridSize, disabled }: { boat
       style={style}
       {...listeners}
       {...attributes}
-      className={`absolute rounded-md bg-blue-500 border border-white ${className}`}
+      className={`absolute rounded-md bg-blue-500/20 border border-white ${className}`}
     />
   )
 }

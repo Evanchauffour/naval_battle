@@ -4,24 +4,15 @@ import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import { createSnapModifier, restrictToParentElement } from '@dnd-kit/modifiers';
 import { Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
+import { socket } from '../../lib/socket-io';
 import { Button } from '../ui/button';
 import Boat from './Boat';
+import { BoatInterface, GameStatus } from './Game';
 import GridItemDraggable from './GridItemDraggable';
 
-export interface Boat {
-  id: number;
-  width: number;
-  height: number;
-  img: string;
-  coordinates: {
-    left: number;
-    top: number;
-  }[];
-}
-
-export default function CurrentPlayerGrid() {
+export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selectedCells, gameStatus }: { boatsList: BoatInterface[], gameId: string, playerId: string, selectedCells: { left: number; top: number }[], gameStatus: GameStatus }) {
   const gridSize = 32;
-  const [currentUserGrid] = useState<number[][]>([
+  const [grid, setGrid] = useState<number[][]>([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -35,49 +26,28 @@ export default function CurrentPlayerGrid() {
   ]);
 
 
-  const [boats, setBoats] = useState<Boat[]>([
-    {
-      id: 0,
-      width: 5,
-      height: 1,
-      img: '/boats/boat5.png',
-      coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }, { left: 3, top: 1 }, { left: 4, top: 1 }, { left: 5, top: 1 }],
-    },
-    {
-      id: 1,
-      width: 1,
-      height: 4,
-      img: '/boats/boat4.png',
-      coordinates: [{ left: 1, top: 1 }, { left: 1, top: 2 }, { left: 1, top: 3 }, { left: 1, top: 4 }],
-    },
-    {
-      id: 2,
-      width: 3,
-      height: 1,
-      img: '/boats/boat3.png',
-      coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }, { left: 3, top: 1 }],
-    },
-    {
-      id: 3,
-      width: 3,
-      height: 1,
-      img: '/boats/boat3.png',
-      coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }, { left: 3, top: 1 }],
-    },
-    {
-      id: 4,
-      width: 2,
-      height: 1,
-      img: '/boats/boat2.png',
-      coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }],
-    },
-  ])
+  const [boats, setBoats] = useState<BoatInterface[]>(boatsList)
 
   const [isLoading, setIsLoading] = useState(true);
   const [isValidate, setIsValidate] = useState(false);
   const snapToGridModifier = createSnapModifier(gridSize);
 
-  const isOverlapping = (boats: Boat[], newBoatCoordinates?: { left: number; top: number }[]) => {
+  useEffect(() => {
+    setBoats(boatsList);
+    selectedCells.forEach(cell => {
+      setGrid(prev => {
+        const newGrid = [...prev];
+        newGrid[cell.top][cell.left] = isBoatHit(cell.top, cell.left) ? 1 : 2;
+        return newGrid;
+      })
+    })
+  }, [boatsList, selectedCells]);
+
+  const isBoatHit = (rowIndex: number, colIndex: number) => {
+    return boats.some(boat => boat.coordinates.some(coordinate => coordinate.left === colIndex && coordinate.top === rowIndex));
+  }
+
+  const isOverlapping = (boats: BoatInterface[], newBoatCoordinates?: { left: number; top: number }[]) => {
     const allCoordinates = boats.flatMap(boat => boat.coordinates);
     const coordinatesToCheck = newBoatCoordinates || allCoordinates;
 
@@ -88,7 +58,7 @@ export default function CurrentPlayerGrid() {
     });
   }
 
-  const generateRandomCoordinates = useCallback((boatHeight: number, boatWidth: number, existingBoats: Boat[]) => {
+  const generateRandomCoordinates = useCallback((boatHeight: number, boatWidth: number, existingBoats: BoatInterface[]) => {
       const maxAttempts = 1000;
       let attempts = 0;
 
@@ -123,19 +93,22 @@ export default function CurrentPlayerGrid() {
 
   const regenerateBoats = useCallback(() => {
     setIsLoading(true);
-    setBoats((prev) => {
-      const boatsWithCoordinates: Boat[] = [];
-      for (let i = 0; i < prev.length; i++) {
-        const boat = prev[i];
-        const existingBoats = boatsWithCoordinates;
-        boatsWithCoordinates.push({
-          ...boat,
-          coordinates: generateRandomCoordinates(boat.height, boat.width, existingBoats),
-        });
-      }
-      return boatsWithCoordinates;
-    });
+    const boatsWithCoordinates: BoatInterface[] = [];
+    for (let i = 0; i < boats.length; i++) {
+      const boat = boats[i];
+      const existingBoats = boatsWithCoordinates;
+      boatsWithCoordinates.push({
+        ...boat,
+        coordinates: generateRandomCoordinates(boat.height, boat.width, existingBoats),
+      });
+    }
+    setBoats(boatsWithCoordinates);
+
+    socket.emit('set-player-boats', { gameId, playerId: playerId, boats: boatsWithCoordinates });
+
     setIsLoading(false);
+    console.log(boatsWithCoordinates);
+
   }, [generateRandomCoordinates]);
 
   useEffect(() => {
@@ -172,10 +145,14 @@ export default function CurrentPlayerGrid() {
             });
           }
         }
-
         return prev;
       });
     }
+  }
+
+  const handleValidate = () => {
+    setIsValidate(!isValidate);
+    socket.emit('set-player-ready', { gameId, playerId: playerId });
   }
 
   if (isLoading) {
@@ -192,11 +169,6 @@ export default function CurrentPlayerGrid() {
         style={{ gridTemplateColumns: `repeat(10, ${gridSize}px)` }}
       >
         <DndContext modifiers={[snapToGridModifier, restrictToParentElement]} onDragEnd={handleDragEnd}>
-        {currentUserGrid.map((row, rowIndex) => (
-          row.map((_, colIndex) => (
-            <GridItemDraggable key={`cell-${rowIndex}-${colIndex}`} index={rowIndex * 10 + colIndex} row={rowIndex} col={colIndex} gridSize={gridSize} />
-          ))
-        ))}
         {boats.map((boat) => (
           <Boat
             key={boat.id}
@@ -205,30 +177,46 @@ export default function CurrentPlayerGrid() {
             disabled={isValidate}
           />
         ))}
+        {grid.map((row, rowIndex) => (
+          row.map((value, colIndex) => (
+            <GridItemDraggable
+              key={`cell-${rowIndex}-${colIndex}`}
+              index={rowIndex * 10 + colIndex}
+              row={rowIndex}
+              col={colIndex}
+              gridSize={gridSize}
+              isHit={value === 1}
+              isMiss={value === 2}
+              isDead={value === 3}
+            />
+          ))
+        ))}
         </DndContext>
       </div>
-      {isValidate && (
+      {isValidate && gameStatus === "ORGANIZING_BOATS" && (
       <div className='absolute top-0 left-0 bg-black/60 w-full h-full rounded-md z-10 flex flex-col items-center justify-center gap-4'>
         <Loader2 className="animate-spin text-white" />
         <p className='text-white'>En attente de la validation de l&apos;autre joueur</p>
       </div>
       )}
     </div>
-    <div className="flex flex-col gap-2">
-      {!isValidate && (
-      <Button variant={"outline"} className="cursor-pointer" onClick={regenerateBoats} disabled={isLoading}>
-        {isLoading ? "Génération..." : "Regénérer les bateaux"}
-      </Button>
-      )}
-      <Button className="cursor-pointer" onClick={() => setIsValidate(true)} disabled={isValidate}>
-        Valider
-      </Button>
-      {isValidate && (
-      <Button className="cursor-pointer" onClick={() => setIsValidate(false)}>
-        Annuler
-      </Button>
-      )}
-    </div>
+    {gameStatus === "ORGANIZING_BOATS" && (
+      <div className="flex flex-col gap-2">
+        {!isValidate && (
+        <Button variant={"outline"} className="cursor-pointer" onClick={regenerateBoats} disabled={isLoading}>
+          {isLoading ? "Génération..." : "Regénérer les bateaux"}
+        </Button>
+        )}
+        <Button className="cursor-pointer" onClick={handleValidate} disabled={isValidate}>
+          Valider
+        </Button>
+        {isValidate && (
+        <Button className="cursor-pointer" onClick={() => setIsValidate(false)}>
+          Annuler
+        </Button>
+        )}
+      </div>
+    )}
   </div>
   )
 }

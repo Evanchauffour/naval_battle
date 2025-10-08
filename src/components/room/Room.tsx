@@ -26,6 +26,7 @@ export default function Room({ roomId }: { roomId: string }) {
   const [room, setRoom] = useState<Room | null>(null);
   const [currentPlayer, setCurrentPlayer] = useState<Player | null>(null);
   const [opponentPlayer, setOpponentPlayer] = useState<Player | null>(null);
+  const [isCreator, setIsCreator] = useState(false);
   const router = useRouter();
 
   const { user } = useUser();
@@ -37,54 +38,49 @@ export default function Room({ roomId }: { roomId: string }) {
   }
 
   useEffect(() => {
-    if (!socket || !room) return;
-    socket.on('game-started', (data) => {
-      if(room?.creatorId === user?.id) {
-        router.push(`/game/${roomId}`);
-      } else {
-        socket.emit('join-game', { gameId: data.gameId });
-      }
-      console.log('Game started:', data);
-    });
-    console.log(room.creatorId, user?.id);
-
-    if(room.creatorId !== user?.id) {
-      socket.on('game-joined', (data) => {
-        console.log('Game joined:', data);
-
-        router.push(`/game/${data.gameId}`);
-      });
-    }
-
-    return () => {
-      socket.off('game-started');
-      socket.off('game-joined');
-    };
-  }, []);
-
-  useEffect(() => {
     if (!socket || !roomId) return;
 
+    // Get room data
     socket.emit('get-room', { roomId });
 
+    // Listen to room updates
     socket.on('room-data', (data: Room) => {
       setRoom(data);
+      setIsCreator(data.creatorId === user?.id);
       setCurrentPlayer(data.players.find((player) => player.id === user?.id) || null);
       setOpponentPlayer(data.players.find((player) => player.id !== user?.id) || null);
     });
 
+    // Listen to game created
+    socket.on('game-created', (data) => {
+      if(data.creatorId === user?.id) {
+        // Redirect to game if user is creator
+        router.push(`/game/${data}`);
+      } else {
+        // Join game if user is not creator
+        socket.emit('join-game', { gameId: data });
+      }
+    });
+
+    // Listen to game join confirmation
+    socket.on('game-joined', (data) => {
+      router.push(`/game/${data}`);
+    });
+
     return () => {
       socket.off('room-data');
+      socket.off('game-created');
+      socket.off('game-joined');
     };
 
-  }, [socket, roomId]);
+  }, [socket, roomId, user?.id, router]);
 
   useEffect(() => {
-    if(!room) return;
-    if(room.players.every((player) => player.isReady && (room.creatorId === user?.id))) {
-      socket.emit('start-game', { roomId });
+    if(!room || !socket) return;
+    if(room.players.every((player) => player.isReady) && isCreator) {
+      socket.emit('create-game', { roomId });
     }
-  }, [room]);
+  }, [room, isCreator, socket, roomId]);
 
   if (!room) {
     return <div>Chargement...</div>;

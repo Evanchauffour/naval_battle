@@ -14,36 +14,3 @@ export default function GridItemGame({ gridSize, isHit, isMiss, isDead, select }
     </button>
   )
 }
-
-
-// useEffect(() => {
-//   boats.forEach(boat => {
-//     const isKilled = boat.coordinates.every(coord =>
-//       coordinatesSelected.some(sel => {
-//         sel.left === coord.left && sel.top === coord.top
-//         console.log(sel.left, coord.left, sel.top, coord.top);
-
-//       })
-//     );
-//     console.log(isKilled);
-
-//     if(isKilled) {
-//       setBoats(prev => {
-//         const newBoats = [...prev]
-//         newBoats.filter(newBoat => newBoat.id === boat.id)[0].isKilled = true
-//         return newBoats
-//       })
-//       console.log(boats[0].isKilled);
-
-//       setGrid(prev => {
-//         const newGrid = [...prev];
-//         boat.coordinates.forEach(coord => {
-//           newGrid[coord.top][coord.left] = 3;
-//         })
-//         console.log(newGrid);
-//         return newGrid;
-//       })
-//     }
-//   })
-
-// }, [coordinatesSelected]);
