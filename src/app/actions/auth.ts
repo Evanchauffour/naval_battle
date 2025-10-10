@@ -6,7 +6,7 @@ import { redirect } from "next/navigation"
 export const logout = async () => {
   const cookieStore = await cookies()
   try {
-    const res = await fetch('http://localhost:4000/auth/logout', {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

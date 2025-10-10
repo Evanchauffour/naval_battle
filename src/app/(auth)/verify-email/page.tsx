@@ -16,7 +16,7 @@ export default function Page() {
   const handleVerifyEmail = useCallback(async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:4000/auth/verify-email`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

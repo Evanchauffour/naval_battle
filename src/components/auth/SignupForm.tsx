@@ -24,7 +24,7 @@ export default function SignupForm() {
 
   const onSubmit = async (data: RegisterFormData) => {
     try {
-      const response = await fetch('http://localhost:4000/auth/register', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: 'POST',
         credentials: 'include',
         body: JSON.stringify(data),
