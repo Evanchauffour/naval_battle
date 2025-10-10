@@ -41,6 +41,8 @@ export default function Game({ gameId }: { gameId: string }) {
   const [currentPlayer, setCurrentPlayer] = useState<PlayerGameState | null>(null);
   const [opponentPlayer, setOpponentPlayer] = useState<PlayerGameState | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>("ORGANIZING_BOATS");
+  const [currentTurn, setCurrentTurn] = useState<string | null>(null);
+  const [players, setPlayers] = useState<PlayerGameState[]>([]);
 
   useEffect(() => {
     if (!socket || !user) return;
@@ -50,8 +52,8 @@ export default function Game({ gameId }: { gameId: string }) {
     socket.on('game-data', (data: GameState) => {
       setCurrentPlayer(data.players.find((player) => player.userId === user?.id) || null);
       setOpponentPlayer(data.players.find((player) => player.userId !== user?.id) || null);
-      console.log(data.status);
       setGameStatus(data.status);
+      setCurrentTurn(data.currentTurn);
 
       if (data.status === "ORGANIZING_BOATS" && data.players.every((player) => player.isReady)) {
         console.log("Starting game");
@@ -69,20 +71,25 @@ export default function Game({ gameId }: { gameId: string }) {
   }
 
   return (
-    <div className='flex justify-center items-start gap-14'>
-      <CurrentPlayerGrid
-        boatsList={currentPlayer?.ships || []}
-        gameId={gameId}
-        playerId={currentPlayer?.userId || ''}
-        selectedCells={opponentPlayer.selectedCells || []}
-        gameStatus={gameStatus}
-      />
-      <OpponentPlayerGrid boatsList={opponentPlayer?.ships || []}
-        selectedCells={currentPlayer.selectedCells || []}
-        gameId={gameId}
-        currentPlayerId={currentPlayer?.userId || ''}
-        gameStatus={gameStatus}
-      />
+    <div className="flex flex-col gap-4">
+      <div className="flex justify-center items-center">
+        <h1 className="text-2xl font-bold">{currentPlayer.userId === currentTurn ? "Votre tour" : "Au tour de votre adversaire"}</h1>
+      </div>
+      <div className='flex justify-center items-start gap-14'>
+        <CurrentPlayerGrid
+          boatsList={currentPlayer?.ships || []}
+          gameId={gameId}
+          playerId={currentPlayer?.userId || ''}
+          selectedCells={opponentPlayer.selectedCells || []}
+          gameStatus={gameStatus}
+        />
+        <OpponentPlayerGrid boatsList={opponentPlayer?.ships || []}
+          selectedCells={currentPlayer.selectedCells || []}
+          gameId={gameId}
+          currentPlayerId={currentPlayer?.userId || ''}
+          isDisabled={currentTurn !== currentPlayer?.userId}
+        />
+      </div>
     </div>
   )
 }

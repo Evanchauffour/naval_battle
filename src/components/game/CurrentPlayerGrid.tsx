@@ -26,14 +26,57 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
   ]);
 
 
-  const [boats, setBoats] = useState<BoatInterface[]>(boatsList)
+  const [boats, setBoats] = useState<BoatInterface[]>([
+    {
+      id: 0,
+      width: 5,
+      height: 1,
+      img: '/boats/boat5.png',
+      isKilled: false,
+      coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }, { left: 3, top: 1 }, { left: 4, top: 1 }, { left: 5, top: 1 }],
+    },
+    {
+      id: 1,
+      width: 1,
+      height: 4,
+      img: '/boats/boat4.png',
+      isKilled: false,
+      coordinates: [{ left: 1, top: 1 }, { left: 1, top: 2 }, { left: 1, top: 3 }, { left: 1, top: 4 }],
+    },
+    {
+      id: 2,
+      width: 3,
+      height: 1,
+      img: '/boats/boat3.png',
+      isKilled: false,
+      coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }, { left: 3, top: 1 }],
+    },
+    {
+      id: 3,
+      width: 3,
+      height: 1,
+      img: '/boats/boat3.png',
+      isKilled: false,
+      coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }, { left: 3, top: 1 }],
+    },
+    {
+      id: 4,
+      width: 2,
+      height: 1,
+      img: '/boats/boat2.png',
+      isKilled: false,
+      coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }],
+    },
+  ])
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isValidate, setIsValidate] = useState(false);
   const snapToGridModifier = createSnapModifier(gridSize);
 
   useEffect(() => {
-    setBoats(boatsList);
+    if (boatsList.length > 0) {
+      setBoats(boatsList);
+    }
     selectedCells.forEach(cell => {
       setGrid(prev => {
         const newGrid = [...prev];
@@ -103,17 +146,14 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
       });
     }
     setBoats(boatsWithCoordinates);
-
-    socket.emit('set-player-boats', { gameId, playerId: playerId, boats: boatsWithCoordinates });
-
     setIsLoading(false);
-    console.log(boatsWithCoordinates);
-
   }, [generateRandomCoordinates]);
 
   useEffect(() => {
-    regenerateBoats();
-  }, [regenerateBoats]);
+    if (gameStatus === "ORGANIZING_BOATS" && boatsList.length === 0) {
+      regenerateBoats();
+    }
+  }, [gameStatus, regenerateBoats]);
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
@@ -152,7 +192,7 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
 
   const handleValidate = () => {
     setIsValidate(!isValidate);
-    socket.emit('set-player-ready', { gameId, playerId: playerId });
+    socket.emit('set-player-ready', { gameId, playerId: playerId, boats: boats });
   }
 
   if (isLoading) {
@@ -169,14 +209,6 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
         style={{ gridTemplateColumns: `repeat(10, ${gridSize}px)` }}
       >
         <DndContext modifiers={[snapToGridModifier, restrictToParentElement]} onDragEnd={handleDragEnd}>
-        {boats.map((boat) => (
-          <Boat
-            key={boat.id}
-            boatData={boat}
-            gridSize={gridSize}
-            disabled={isValidate}
-          />
-        ))}
         {grid.map((row, rowIndex) => (
           row.map((value, colIndex) => (
             <GridItemDraggable
@@ -190,6 +222,14 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
               isDead={value === 3}
             />
           ))
+        ))}
+        {boats.map((boat) => (
+          <Boat
+            key={boat.id}
+            boatData={boat}
+            gridSize={gridSize}
+            disabled={isValidate}
+          />
         ))}
         </DndContext>
       </div>

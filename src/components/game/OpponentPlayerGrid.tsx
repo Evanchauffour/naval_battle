@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { socket } from '../../lib/socket-io';
-import { BoatInterface, GameStatus } from './Game';
+import { BoatInterface } from './Game';
 import GridItemGame from './GridItemGame';
 
-export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, currentPlayerId, gameStatus }: { boatsList: BoatInterface[], selectedCells: { left: number; top: number }[], gameId: string, currentPlayerId: string, gameStatus: GameStatus }) {
+export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, currentPlayerId, isDisabled }: { boatsList: BoatInterface[], selectedCells: { left: number; top: number }[], gameId: string, currentPlayerId: string, isDisabled: boolean }) {
   const gridSize = 32;
   const [grid, setGrid] = useState<number[][]>([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -69,6 +69,7 @@ export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, c
   }, [coordinatesSelected, boats]);
 
   const handleClick = (rowIndex: number, colIndex: number) => {
+    if (isDisabled) return;
     setCoordinatesSelected(prev => [...prev, { left: colIndex, top: rowIndex }]);
     socket.emit('set-player-selected-cells', { gameId, playerId: currentPlayerId, cells: { left: colIndex, top: rowIndex } });
     setGrid(prev => {
@@ -93,6 +94,7 @@ export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, c
               isHit={value === 1}
               isMiss={value === 2}
               isDead={value === 3}
+              isDisabled={isDisabled}
               select={() => {
                 handleClick(rowIndex, colIndex);
               }}

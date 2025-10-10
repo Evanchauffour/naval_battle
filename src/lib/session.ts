@@ -6,11 +6,22 @@ const encodedKey = new TextEncoder().encode(secretKey)
 
 export async function decrypt(session: string | undefined = '') {
   try {
+    if (!secretKey) {
+      console.error('JWT_SECRET is not defined in environment variables')
+      return undefined
+    }
+
+    if (!session) {
+      console.error('No session token provided')
+      return undefined
+    }
+
     const { payload } = await jwtVerify(session, encodedKey, {
       algorithms: ['HS256'],
     })
     return payload
   } catch (error) {
-    console.log('Failed to verify session')
+    console.error('Failed to verify session:', error)
+    return undefined
   }
 }
