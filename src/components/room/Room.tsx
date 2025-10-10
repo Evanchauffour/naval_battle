@@ -15,6 +15,7 @@ export interface Player {
 
 export interface Room {
   id: string;
+  code: string;
   creatorId: string;
   players: Player[];
   createdAt: Date;
@@ -45,6 +46,7 @@ export default function Room({ roomId }: { roomId: string }) {
 
     // Listen to room updates
     socket.on('room-data', (data: Room) => {
+      console.log(data);
       setRoom(data);
       setIsCreator(data.creatorId === user?.id);
       setCurrentPlayer(data.players.find((player) => player.id === user?.id) || null);
@@ -88,6 +90,7 @@ export default function Room({ roomId }: { roomId: string }) {
 
   return (
     <div className="flex flex-col gap-4">
+      <p>Code: {room.code}</p>
       <div className="flex gap-4">
         <PlayerCard player={currentPlayer} roomId={roomId} isCurrentUser={true} />
         <PlayerCard player={opponentPlayer} roomId={roomId} isCurrentUser={false} />
