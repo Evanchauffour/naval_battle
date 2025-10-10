@@ -2,19 +2,18 @@
 
 import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card";
 
 export default function Page() {
-  const searchParams = useSearchParams()
-  const token = searchParams.get('token') as string;
+  const params = useParams<{ token: string }>()
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
-  const handleVerifyEmail = async () => {
+  const handleVerifyEmail = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch(`http://localhost:4000/auth/verify-email`, {
@@ -22,7 +21,7 @@ export default function Page() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token: params.token }),
         credentials: 'include',
       });
       if (response.ok) {
@@ -37,11 +36,11 @@ export default function Page() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [params.token]);
 
   useEffect(() => {
     handleVerifyEmail();
-  }, []);
+  }, [handleVerifyEmail]);
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">

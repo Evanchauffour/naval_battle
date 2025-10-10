@@ -42,7 +42,6 @@ export default function Game({ gameId }: { gameId: string }) {
   const [opponentPlayer, setOpponentPlayer] = useState<PlayerGameState | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>("ORGANIZING_BOATS");
   const [currentTurn, setCurrentTurn] = useState<string | null>(null);
-  const [players, setPlayers] = useState<PlayerGameState[]>([]);
 
   useEffect(() => {
     if (!socket || !user) return;
