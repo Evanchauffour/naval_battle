@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { socket } from '../../lib/socket-io';
+import { useSocket } from '../../hook/useSocket';
 import { BoatInterface } from './Game';
 import GridItemGame from './GridItemGame';
 
 export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, currentPlayerId, isDisabled }: { boatsList: BoatInterface[], selectedCells: { left: number; top: number }[], gameId: string, currentPlayerId: string, isDisabled: boolean }) {
+  const { socket } = useSocket();
   const gridSize = 32;
   const [grid, setGrid] = useState<number[][]>([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -72,7 +73,7 @@ export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, c
     if (isDisabled) return;
     setCoordinatesSelected(prev => [...prev, { left: colIndex, top: rowIndex }]);
 
-    socket.emit('set-player-selected-cells', { gameId, playerId: currentPlayerId, cells: { left: colIndex, top: rowIndex }, isPlayAgain: isBoatHit(rowIndex, colIndex) });
+    socket?.emit('set-player-selected-cells', { gameId, playerId: currentPlayerId, cells: { left: colIndex, top: rowIndex }, isPlayAgain: isBoatHit(rowIndex, colIndex) });
     setGrid(prev => {
       const newGrid = [...prev];
       newGrid[rowIndex][colIndex] = isBoatHit(rowIndex, colIndex) ? 1 : 2;

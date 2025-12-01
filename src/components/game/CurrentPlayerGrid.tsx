@@ -4,13 +4,14 @@ import { DndContext, DragEndEvent } from '@dnd-kit/core';
 import { createSnapModifier, restrictToParentElement } from '@dnd-kit/modifiers';
 import { Loader2 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-import { socket } from '../../lib/socket-io';
+import { useSocket } from '../../hook/useSocket';
 import { Button } from '../ui/button';
 import Boat from './Boat';
 import { BoatInterface, GameStatus } from './Game';
 import GridItemDraggable from './GridItemDraggable';
 
 export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selectedCells, gameStatus }: { boatsList: BoatInterface[], gameId: string, playerId: string, selectedCells: { left: number; top: number }[], gameStatus: GameStatus }) {
+  const { socket } = useSocket();
   const gridSize = 32;
   const [grid, setGrid] = useState<number[][]>([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -224,7 +225,7 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
 
   const handleValidate = () => {
     setIsValidate(!isValidate);
-    socket.emit('set-player-ready', { gameId, playerId: playerId, boats: boats });
+    socket?.emit('set-player-ready', { gameId, playerId: playerId, boats: boats });
   }
 
   if (isLoading) {

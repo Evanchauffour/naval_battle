@@ -2,13 +2,14 @@
 
 import { CheckCircle, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { socket } from "../../lib/socket-io";
+import { useSocket } from "../../hook/useSocket";
 import { useUser } from "../../store/user.store";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card";
 import { Player } from "./Room";
 
 export default function PlayerCard({ player, roomId, isCurrentUser }: { player: Player | null, roomId: string, isCurrentUser: boolean }) {
+  const { socket } = useSocket();
   const [isReady, setIsReady] = useState(false);
   const { user } = useUser();
 
@@ -20,7 +21,7 @@ export default function PlayerCard({ player, roomId, isCurrentUser }: { player: 
   const handleReady = () => {
     if (!player) return;
     setIsReady(!isReady);
-    socket.emit('set-ready', { roomId, userId: player.id, isReady });
+    socket?.emit('set-ready', { roomId, userId: player.id, isReady });
   }
 
   if (!player) {

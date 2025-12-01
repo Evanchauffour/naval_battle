@@ -43,7 +43,7 @@ export default function Page() {
   }, [socket, router]);
 
   const handleCreateRoom = () => {
-    if (!connected || !user) return;
+    if (!connected || !user || !socket) return;
 
     try {
       socket.emit('create-room', { userId: user.id });
@@ -55,7 +55,7 @@ export default function Page() {
   const handleSearchGame = () => {
     console.log('handleSearchGame');
 
-    if (!connected || !user) return;
+    if (!connected || !user || !socket) return;
 
     try {
       socket.emit('start-matchmaking', { userId: user.id });

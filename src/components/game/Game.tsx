@@ -2,7 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { socket } from "../../lib/socket-io";
+import { useSocket } from "../../hook/useSocket";
 import { useUser } from "../../store/user.store";
 import CurrentPlayerGrid from "./CurrentPlayerGrid";
 import OpponentPlayerGrid from "./OpponentPlayerGrid";
@@ -39,6 +39,7 @@ export interface BoatInterface {
 
 export default function Game({ gameId }: { gameId: string }) {
   const { user } = useUser();
+  const { socket } = useSocket();
   const [currentPlayer, setCurrentPlayer] = useState<PlayerGameState | null>(null);
   const [opponentPlayer, setOpponentPlayer] = useState<PlayerGameState | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>("ORGANIZING_BOATS");
@@ -47,9 +48,9 @@ export default function Game({ gameId }: { gameId: string }) {
   useEffect(() => {
     if (!socket || !user) return;
 
-    socket.emit('get-game', { gameId });
+    socket?.emit('get-game', { gameId });
 
-    socket.on('game-data', (data: GameState) => {
+    socket?.on('game-data', (data: GameState) => {
       setCurrentPlayer(data.players.find((player) => player.userId === user?.id) || null);
       setOpponentPlayer(data.players.find((player) => player.userId !== user?.id) || null);
       setGameStatus(data.status);
@@ -57,9 +58,9 @@ export default function Game({ gameId }: { gameId: string }) {
     });
 
     return () => {
-      socket.off('game-data');
+      socket?.off('game-data');
     };
-  }, [gameId, user]);
+  }, [gameId, user, socket]);
 
   if (!currentPlayer || !opponentPlayer) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-10 h-10 animate-spin" /></div>;
