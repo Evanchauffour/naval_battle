@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import FriendsWidget from "../../../components/home/FriendsWidget";
 import HistoryWidget from "../../../components/home/HistoryWidget";
 import JoinGameDialog from "../../../components/home/JoinGameDialog";
+import MatchmakingModal from "../../../components/home/MatchmakingModal";
 import LeaderboardWidget from "../../../components/home/LeaderboardWidget";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
@@ -18,6 +19,7 @@ export default function Page() {
   const { socket, connected } = useSocket();
   const { user } = useUser();
   const [openJoinGameDialog, setOpenJoinGameDialog] = useState(false);
+  const [isMatchmaking, setIsMatchmaking] = useState(false);
 
   useEffect(() => {
     if (!socket) return;
@@ -30,6 +32,7 @@ export default function Page() {
 
     socket.on('match-found', (data) => {
       console.log('data', data);
+      setIsMatchmaking(false);
 
       if(!data.id) return;
       toast.success('Partie trouvée');
@@ -38,6 +41,7 @@ export default function Page() {
 
     return () => {
       socket.off('room-created');
+      socket.off('match-found');
     };
 
   }, [socket, router]);
@@ -58,9 +62,11 @@ export default function Page() {
     if (!connected || !user || !socket) return;
 
     try {
+      setIsMatchmaking(true);
       socket.emit('start-matchmaking');
     } catch (error) {
       console.log('Erreur:', error);
+      setIsMatchmaking(false);
     }
   }
 
@@ -108,6 +114,7 @@ export default function Page() {
       </div>
     </div>
     <JoinGameDialog open={openJoinGameDialog} setOpen={setOpenJoinGameDialog} userId={user?.id || ''} />
+    <MatchmakingModal open={isMatchmaking} onOpenChange={setIsMatchmaking} />
     </>
   )
 }
