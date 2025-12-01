@@ -46,7 +46,7 @@ export default function Page() {
     if (!connected || !user || !socket) return;
 
     try {
-      socket.emit('create-room', { userId: user.id });
+      socket.emit('create-room');
     } catch (error) {
       console.log('Erreur:', error);
     }
@@ -58,7 +58,7 @@ export default function Page() {
     if (!connected || !user || !socket) return;
 
     try {
-      socket.emit('start-matchmaking', { userId: user.id });
+      socket.emit('start-matchmaking');
     } catch (error) {
       console.log('Erreur:', error);
     }

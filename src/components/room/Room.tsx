@@ -34,7 +34,7 @@ export default function Room({ roomId }: { roomId: string }) {
 
   const handleLeaveRoom = () => {
     if (!socket || !roomId) return;
-    socket.emit('leave-room', { roomId, userId: user?.id });
+    socket.emit('leave-room', { roomId });
     router.push('/');
   }
 

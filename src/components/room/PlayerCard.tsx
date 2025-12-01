@@ -21,7 +21,7 @@ export default function PlayerCard({ player, roomId, isCurrentUser }: { player: 
   const handleReady = () => {
     if (!player) return;
     setIsReady(!isReady);
-    socket?.emit('set-ready', { roomId, userId: player.id, isReady });
+    socket?.emit('set-ready', { roomId, isReady });
   }
 
   if (!player) {

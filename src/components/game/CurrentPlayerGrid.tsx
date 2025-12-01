@@ -225,7 +225,7 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
 
   const handleValidate = () => {
     setIsValidate(!isValidate);
-    socket?.emit('set-player-ready', { gameId, playerId: playerId, boats: boats });
+    socket?.emit('set-player-ready', { gameId, boats: boats });
   }
 
   if (isLoading) {

@@ -51,7 +51,7 @@ export default function JoinGameDialog({ open, setOpen, userId }: { open: boolea
   const onNext = handleSubmit((data) => {
     if (!socket || !connected) return;
     console.log(data);
-    socket.emit('join-room-by-code', { code: data.code1 + data.code2 + data.code3 + data.code4, userId });
+    socket.emit('join-room-by-code', { code: data.code1 + data.code2 + data.code3 + data.code4 });
   });
 
   return (

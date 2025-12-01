@@ -73,7 +73,7 @@ export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, c
     if (isDisabled) return;
     setCoordinatesSelected(prev => [...prev, { left: colIndex, top: rowIndex }]);
 
-    socket?.emit('set-player-selected-cells', { gameId, playerId: currentPlayerId, cells: { left: colIndex, top: rowIndex }, isPlayAgain: isBoatHit(rowIndex, colIndex) });
+    socket?.emit('set-player-selected-cells', { gameId, cells: { left: colIndex, top: rowIndex }, isPlayAgain: isBoatHit(rowIndex, colIndex) });
     setGrid(prev => {
       const newGrid = [...prev];
       newGrid[rowIndex][colIndex] = isBoatHit(rowIndex, colIndex) ? 1 : 2;
