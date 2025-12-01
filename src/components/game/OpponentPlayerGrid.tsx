@@ -71,7 +71,8 @@ export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, c
   const handleClick = (rowIndex: number, colIndex: number) => {
     if (isDisabled) return;
     setCoordinatesSelected(prev => [...prev, { left: colIndex, top: rowIndex }]);
-    socket.emit('set-player-selected-cells', { gameId, playerId: currentPlayerId, cells: { left: colIndex, top: rowIndex } });
+
+    socket.emit('set-player-selected-cells', { gameId, playerId: currentPlayerId, cells: { left: colIndex, top: rowIndex }, isPlayAgain: isBoatHit(rowIndex, colIndex) });
     setGrid(prev => {
       const newGrid = [...prev];
       newGrid[rowIndex][colIndex] = isBoatHit(rowIndex, colIndex) ? 1 : 2;
@@ -81,7 +82,7 @@ export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, c
 
   return (
     <div className='flex flex-col gap-6'>
-    <div className='w-fit rounded-md bg-gray-700 backdrop-blur-md border border-white/10 shadow-2xl p-6'>
+    <div className='w-fit rounded-md shadow-2xl'>
       <div
         className='grid relative'
         style={{ gridTemplateColumns: `repeat(10, ${gridSize}px)` }}

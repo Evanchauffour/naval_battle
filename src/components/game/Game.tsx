@@ -28,7 +28,8 @@ export interface BoatInterface {
   id: number;
   width: number;
   height: number;
-  img: string;
+  imgHorizontal: string;
+  imgVertical: string;
   isKilled: boolean;
   coordinates: {
     left: number;
@@ -53,11 +54,6 @@ export default function Game({ gameId }: { gameId: string }) {
       setOpponentPlayer(data.players.find((player) => player.userId !== user?.id) || null);
       setGameStatus(data.status);
       setCurrentTurn(data.currentTurn);
-
-      if (data.status === "ORGANIZING_BOATS" && data.players.every((player) => player.isReady)) {
-        console.log("Starting game");
-        socket.emit('start-game', { gameId });
-      }
     });
 
     return () => {
@@ -71,9 +67,11 @@ export default function Game({ gameId }: { gameId: string }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex justify-center items-center">
-        <h1 className="text-2xl font-bold">{currentPlayer.userId === currentTurn ? "Votre tour" : "Au tour de votre adversaire"}</h1>
-      </div>
+      {gameStatus === "IN_GAME" && (
+        <div className="flex justify-center items-center">
+          <h1 className="text-4xl font-bold text-white">{currentPlayer.userId === currentTurn ? "Votre tour" : "Au tour de votre adversaire"}</h1>
+        </div>
+      )}
       <div className='flex justify-center items-start gap-14'>
         <CurrentPlayerGrid
           boatsList={currentPlayer?.ships || []}
@@ -86,7 +84,7 @@ export default function Game({ gameId }: { gameId: string }) {
           selectedCells={currentPlayer.selectedCells || []}
           gameId={gameId}
           currentPlayerId={currentPlayer?.userId || ''}
-          isDisabled={currentTurn !== currentPlayer?.userId}
+          isDisabled={currentTurn !== currentPlayer?.userId || gameStatus !== "IN_GAME"}
         />
       </div>
     </div>

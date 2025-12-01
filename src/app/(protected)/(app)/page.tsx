@@ -27,6 +27,15 @@ export default function Page() {
       toast.success('Partie créée');
       router.push(`/room/${data.id}`);
     });
+
+    socket.on('match-found', (data) => {
+      console.log('data', data);
+
+      if(!data.id) return;
+      toast.success('Partie trouvée');
+      router.push(`/room/${data.id}`);
+    });
+
     return () => {
       socket.off('room-created');
     };
@@ -38,6 +47,18 @@ export default function Page() {
 
     try {
       socket.emit('create-room', { userId: user.id });
+    } catch (error) {
+      console.log('Erreur:', error);
+    }
+  }
+
+  const handleSearchGame = () => {
+    console.log('handleSearchGame');
+
+    if (!connected || !user) return;
+
+    try {
+      socket.emit('start-matchmaking', { userId: user.id });
     } catch (error) {
       console.log('Erreur:', error);
     }
@@ -65,13 +86,13 @@ export default function Page() {
             <div className="w-full flex flex-col gap-2 h-full">
               <Button onClick={handleCreateRoom} disabled={!connected || !user} className="flex-1 hover:bg-primary/90 hover:text-primary-foreground">
                 <Plus className="size-5"/>
-                <span className="text-left">Créer une partie</span>
+                <span className="text-left">Créer une partie privée</span>
               </Button>
               <Button onClick={() => setOpenJoinGameDialog(true)} disabled={!connected || !user} className="flex gap-2 items-center flex-1 bg-blue-200 text-blue-500 border border-blue-500 hover:bg-blue-200/80 hover:text-blue-500">
                 <Search className="size-5"/>
                 <span className="text-left">Rejoindre une partie privée</span>
               </Button>
-              <Button variant="outline" disabled={!connected || !user} className="flex gap-4 items-center flex-1 bg-green-200 hover:bg-green-200/80 hover:text-green-500 text-green-500 border border-green-500">
+              <Button variant="outline" disabled={!connected || !user} onClick={handleSearchGame}  className="flex gap-4 items-center flex-1 bg-green-200 hover:bg-green-200/80 hover:text-green-500 text-green-500 border border-green-500">
                 <Globe className="size-5"/>
                 <div className="flex flex-col">
                   <span className="text-left">Rechercher une partie</span>

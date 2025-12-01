@@ -29,9 +29,10 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
   const [boats, setBoats] = useState<BoatInterface[]>([
     {
       id: 0,
-      width: 5,
-      height: 1,
-      img: '/boats/boat5.png',
+      width: 1,
+      height: 5,
+      imgHorizontal: '/boats/Boat5Horizontal.png',
+      imgVertical: '/boats/boat5Vertical.png',
       isKilled: false,
       coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }, { left: 3, top: 1 }, { left: 4, top: 1 }, { left: 5, top: 1 }],
     },
@@ -39,31 +40,35 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
       id: 1,
       width: 1,
       height: 4,
-      img: '/boats/boat4.png',
+      imgHorizontal: '/boats/boat4Horizontal.png',
+      imgVertical: '/boats/boat4Vertical.png',
       isKilled: false,
       coordinates: [{ left: 1, top: 1 }, { left: 1, top: 2 }, { left: 1, top: 3 }, { left: 1, top: 4 }],
     },
     {
       id: 2,
-      width: 3,
-      height: 1,
-      img: '/boats/boat3.png',
+      width: 1,
+      height: 3,
+      imgHorizontal: '/boats/boat3Horizontal.png',
+      imgVertical: '/boats/boat3Vertical.png',
       isKilled: false,
       coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }, { left: 3, top: 1 }],
     },
     {
       id: 3,
-      width: 3,
-      height: 1,
-      img: '/boats/boat3.png',
+      width: 1,
+      height: 3,
+      imgHorizontal: '/boats/boat3Horizontal.png',
+      imgVertical: '/boats/boat3Vertical.png',
       isKilled: false,
       coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }, { left: 3, top: 1 }],
     },
     {
       id: 4,
-      width: 2,
-      height: 1,
-      img: '/boats/boat2.png',
+      width: 1,
+      height: 2,
+      imgHorizontal: '/boats/boat2Horizontal.png',
+      imgVertical: '/boats/boat2Vertical.png',
       isKilled: false,
       coordinates: [{ left: 1, top: 1 }, { left: 2, top: 1 }],
     },
@@ -72,6 +77,33 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
   const [isLoading, setIsLoading] = useState(false);
   const [isValidate, setIsValidate] = useState(false);
   const snapToGridModifier = createSnapModifier(gridSize);
+
+  useEffect(() => {
+    boats.forEach(boat => {
+      const isKilled = boat.coordinates.every(coord =>
+        selectedCells.some(sel =>
+          sel.left === coord.left && sel.top === coord.top
+        )
+      );
+
+      if (!isKilled || boat.isKilled) return;
+
+      setBoats(prev =>
+        prev.map(b =>
+          b.id === boat.id ? { ...b, isKilled: true } : b
+        )
+      );
+
+      setGrid(prev => {
+        const newGrid = [...prev]
+        boat.coordinates.forEach(({ top, left }) => {
+          newGrid[top][left] = 3;
+        });
+        return newGrid;
+      });
+    })
+
+  }, [selectedCells, boats]);
 
   useEffect(() => {
     if (boatsList.length > 0) {
@@ -203,7 +235,7 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
 
   return (
     <div className='flex flex-col gap-6'>
-    <div className='w-fit rounded-md bg-gray-700 backdrop-blur-md border border-white/10 shadow-2xl p-6'>
+    <div className='w-fit rounded-md shadow-2xl'>
       <div
         className='grid relative'
         style={{ gridTemplateColumns: `repeat(10, ${gridSize}px)` }}
