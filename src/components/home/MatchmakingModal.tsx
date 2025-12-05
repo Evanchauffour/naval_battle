@@ -19,7 +19,7 @@ export default function MatchmakingModal({ open, onOpenChange }: MatchmakingModa
   };
 
   return (
-    <Dialog open={open} onOpenChange={(val) => !val && handleCancel()}>
+    <Dialog open={open} onOpenChange={() => {}}>
       <DialogContent className="sm:max-w-md" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="text-center">Recherche de partie</DialogTitle>

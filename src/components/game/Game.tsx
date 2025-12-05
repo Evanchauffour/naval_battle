@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useSocket } from "../../hook/useSocket";
 import { useUser } from "../../store/user.store";
 import CurrentPlayerGrid from "./CurrentPlayerGrid";
+import GameResultModal from "./GameResultModal";
 import OpponentPlayerGrid from "./OpponentPlayerGrid";
 
 export interface GameState {
@@ -67,27 +68,33 @@ export default function Game({ gameId }: { gameId: string }) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      {gameStatus === "IN_GAME" && (
-        <div className="flex justify-center items-center">
-          <h1 className="text-4xl font-bold text-white">{currentPlayer.userId === currentTurn ? "Votre tour" : "Au tour de votre adversaire"}</h1>
+    <>
+      <GameResultModal
+        open={gameStatus === "ENDED"}
+        gameId={gameId}
+      />
+      <div className="flex flex-col gap-4">
+        {gameStatus === "IN_GAME" && (
+          <div className="flex justify-center items-center">
+            <h1 className="text-4xl font-bold text-white">{currentPlayer.userId === currentTurn ? "Votre tour" : "Au tour de votre adversaire"}</h1>
+          </div>
+        )}
+        <div className='flex justify-center items-start gap-14'>
+          <CurrentPlayerGrid
+            boatsList={currentPlayer?.ships || []}
+            gameId={gameId}
+            playerId={currentPlayer?.userId || ''}
+            selectedCells={opponentPlayer.selectedCells || []}
+            gameStatus={gameStatus}
+          />
+          <OpponentPlayerGrid boatsList={opponentPlayer?.ships || []}
+            selectedCells={currentPlayer.selectedCells || []}
+            gameId={gameId}
+            currentPlayerId={currentPlayer?.userId || ''}
+            isDisabled={currentTurn !== currentPlayer?.userId || gameStatus !== "IN_GAME"}
+          />
         </div>
-      )}
-      <div className='flex justify-center items-start gap-14'>
-        <CurrentPlayerGrid
-          boatsList={currentPlayer?.ships || []}
-          gameId={gameId}
-          playerId={currentPlayer?.userId || ''}
-          selectedCells={opponentPlayer.selectedCells || []}
-          gameStatus={gameStatus}
-        />
-        <OpponentPlayerGrid boatsList={opponentPlayer?.ships || []}
-          selectedCells={currentPlayer.selectedCells || []}
-          gameId={gameId}
-          currentPlayerId={currentPlayer?.userId || ''}
-          isDisabled={currentTurn !== currentPlayer?.userId || gameStatus !== "IN_GAME"}
-        />
       </div>
-    </div>
+    </>
   )
 }

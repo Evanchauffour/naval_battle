@@ -22,7 +22,7 @@ export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, c
   ]);
 
   const [coordinatesSelected, setCoordinatesSelected] = useState<{ left: number; top: number }[]>(selectedCells);
-
+  const [hasEndedGame, setHasEndedGame] = useState(false);
 
   const [boats, setBoats] = useState<BoatInterface[]>(boatsList)
 
@@ -67,7 +67,25 @@ export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, c
       });
     })
 
-  }, [coordinatesSelected, boats]);
+    // Vérifier si tous les bateaux sont coulés
+    const allBoatsKilled = boats.length > 0 && boats.every(boat => {
+      return boat.coordinates.every(coord =>
+        coordinatesSelected.some(sel =>
+          sel.left === coord.left && sel.top === coord.top
+        )
+      );
+    });
+
+    if (allBoatsKilled && socket && !isDisabled && !hasEndedGame) {
+      // Tous les bateaux de l'adversaire sont coulés, le joueur actuel a gagné
+      setHasEndedGame(true);
+      socket.emit('end-game', {
+        gameId,
+        winnerId: currentPlayerId
+      });
+    }
+
+  }, [coordinatesSelected, boats, socket, gameId, currentPlayerId, isDisabled, hasEndedGame]);
 
   const handleClick = (rowIndex: number, colIndex: number) => {
     if (isDisabled) return;
