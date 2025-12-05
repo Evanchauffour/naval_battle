@@ -20,7 +20,7 @@ export default function Sidebar() {
             <SidebarItem href="/" icon={<HomeIcon className="w-5 h-5" />} label="Home" />
             <SidebarItem href="/" icon={<List className="w-5 h-5" />} label="Leaderboard" />
             <SidebarItem href="/" icon={<Users className="w-5 h-5" />} label="Friends" />
-            <SidebarItem href="/" icon={<History className="w-5 h-5" />} label="History" />
+            <SidebarItem href="/history" icon={<History className="w-5 h-5" />} label="History" />
             <SidebarItem href="/" icon={<User className="w-5 h-5" />} label="Profile" />
           </div>
           <div className="w-full p-4">

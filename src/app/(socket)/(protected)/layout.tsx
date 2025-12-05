@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
-import { verifySession } from "../../lib/dal";
-import { SocketProvider } from "../../hook/useSocket";
+import Sidebar from "../../../components/Sidebar";
+import { verifySession } from "../../../lib/dal";
 
 export default async function layout({ children }: { children: React.ReactNode }) {
-
   const session = await verifySession();
 
   if (!session.isAuth) {
@@ -11,8 +10,9 @@ export default async function layout({ children }: { children: React.ReactNode }
   }
 
   return (
-    <SocketProvider>
-      <main className="w-full h-screen">{children}</main>
-    </SocketProvider>
+    <div className="flex w-full h-screen">
+      <Sidebar />
+      <main className="flex-1 p-8 overflow-auto">{children}</main>
+    </div>
   )
 }
