@@ -1,12 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { BarChart3, Flame, Gamepad2, Shield, Target, TrendingUp, Trophy, Settings, User, Mail } from 'lucide-react';
+import { BarChart3, Flame, Gamepad2, Mail, Settings, Shield, Target, TrendingUp, Trophy, User } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { UserStats } from '../../app/actions/user-stats';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import { Button } from '../ui/button';
-import UpdateProfileModal from './UpdateProfileModal';
 import { useUser } from '../../store/user.store';
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import UpdateProfileModal from './UpdateProfileModal';
 
 interface ProfileContentProps {
   userStats: UserStats;
