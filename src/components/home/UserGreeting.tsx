@@ -11,7 +11,7 @@ export default function UserGreeting() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold">Bonjour, {user.name} !</h1>
+      <h1 className="text-2xl font-bold">Bonjour, {user.username || user.name || 'Joueur'} !</h1>
     </div>
   )
 }

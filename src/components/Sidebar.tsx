@@ -18,10 +18,10 @@ export default function Sidebar() {
         <ul className="flex flex-col justify-between h-full">
           <div>
             <SidebarItem href="/" icon={<HomeIcon className="w-5 h-5" />} label="Home" />
-            <SidebarItem href="/" icon={<List className="w-5 h-5" />} label="Leaderboard" />
+            <SidebarItem href="/leaderboard" icon={<List className="w-5 h-5" />} label="Leaderboard" />
             <SidebarItem href="/" icon={<Users className="w-5 h-5" />} label="Friends" />
             <SidebarItem href="/history" icon={<History className="w-5 h-5" />} label="History" />
-            <SidebarItem href="/" icon={<User className="w-5 h-5" />} label="Profile" />
+            <SidebarItem href="/profile" icon={<User className="w-5 h-5" />} label="Profile" />
           </div>
           <div className="w-full p-4">
             <Button onClick={handleLogout} variant="outline" className="w-full"><LogOut className="w-5 h-5" /> Logout</Button>

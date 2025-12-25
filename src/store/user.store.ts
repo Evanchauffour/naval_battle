@@ -4,7 +4,10 @@ import { persist } from 'zustand/middleware'
 export interface User {
   id: string
   email: string
-  name?: string
+  firstName?: string
+  lastName?: string
+  username?: string
+  name?: string // Pour compatibilité avec l'ancien code
   avatar?: string
   isVerified?: boolean
   createdAt?: Date

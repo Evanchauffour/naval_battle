@@ -35,7 +35,7 @@ export default function PlayerCard({ player, roomId, isCurrentUser }: { player: 
   return (
     <Card className="flex-1 relative overflow-hidden">
       <CardHeader>
-        <CardTitle>{player.name}</CardTitle>
+        <CardTitle>{player.name || 'Joueur'}</CardTitle>
       </CardHeader>
       {isCurrentUser && (
         <CardFooter>

@@ -5,10 +5,10 @@ import GameListItem from "@/components/history/GameListItem";
 import { Card, CardContent } from "@/components/ui/card";
 import { History as HistoryIcon } from "lucide-react";
 
-export function History({ games, displayAll }: { games: Game[], displayAll?: boolean }) {
+export function History({ games }: { games: Game[] }) {
 
   return (
-    <Card className="p-0 border-none bg-transparent">
+    <Card className="p-0">
       <CardContent className="overflow-y-auto hide-scrollbar flex-1 min-h-0 p-0 bg-transparent">
       {games.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">

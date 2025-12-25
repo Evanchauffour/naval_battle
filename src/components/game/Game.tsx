@@ -45,15 +45,75 @@ export default function Game({ gameId }: { gameId: string }) {
   const [opponentPlayer, setOpponentPlayer] = useState<PlayerGameState | null>(null);
   const [gameStatus, setGameStatus] = useState<GameStatus>("ORGANIZING_BOATS");
   const [currentTurn, setCurrentTurn] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Récupérer l'ID utilisateur depuis le backend
+  useEffect(() => {
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          const currentUser = await response.json();
+          if (currentUser?.id) {
+            setCurrentUserId(currentUser.id);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
   useEffect(() => {
-    if (!socket || !user) return;
+    if (!socket) return;
 
     socket?.emit('get-game', { gameId });
 
     socket?.on('game-data', (data: GameState) => {
-      setCurrentPlayer(data.players.find((player) => player.userId === user?.id) || null);
-      setOpponentPlayer(data.players.find((player) => player.userId !== user?.id) || null);
+      console.log('Game data received:', data);
+      console.log('Current user id from store:', user?.id);
+      console.log('Current userId from API:', currentUserId);
+
+      // Utiliser currentUserId si disponible, sinon user?.id
+      const userId = currentUserId || user?.id;
+      console.log('Using userId:', userId);
+
+      if (!userId) {
+        console.warn('No userId available yet, waiting...');
+        // Réessayer de récupérer l'utilisateur
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/profile`, {
+          method: 'GET',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then(res => res.json())
+          .then(currentUser => {
+            if (currentUser?.id) {
+              setCurrentUserId(currentUser.id);
+            }
+          })
+          .catch(err => console.error('Error fetching user:', err));
+        return;
+      }
+
+      const current = data.players.find((player) => player.userId === userId) || null;
+      const opponent = data.players.find((player) => player.userId !== userId) || null;
+
+      console.log('Current player:', current);
+      console.log('Opponent player:', opponent);
+
+      setCurrentPlayer(current);
+      setOpponentPlayer(opponent);
       setGameStatus(data.status);
       setCurrentTurn(data.currentTurn);
     });
@@ -61,7 +121,11 @@ export default function Game({ gameId }: { gameId: string }) {
     return () => {
       socket?.off('game-data');
     };
-  }, [gameId, user, socket]);
+  }, [gameId, user, socket, currentUserId]);
+
+  console.log('currentPlayer', currentPlayer);
+  console.log('opponentPlayer', opponentPlayer);
+
 
   if (!currentPlayer || !opponentPlayer) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-10 h-10 animate-spin" /></div>;
