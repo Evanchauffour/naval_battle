@@ -1,16 +1,15 @@
 "use client";
 
 import { LeaderboardUser } from "@/app/actions/leaderboard";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { UserIcon } from "lucide-react";
 import Link from "next/link";
 
 export function Leaderboard({ users }: { users: LeaderboardUser[] }) {
   return (
-    <Card className="p-0 border border-gray-200 bg-white">
-      <CardContent className="overflow-y-auto overflow-x-visible flex-1 min-h-0 p-0">
-        <ul className="space-y-3 p-4">
+    <div className="">
+      <div className="overflow-y-auto overflow-x-visible flex-1 min-h-0 p-0">
+        <ul className="space-y-3">
           {users.map((player) => (
             <li key={player.id}>
               <div
@@ -36,7 +35,7 @@ export function Leaderboard({ users }: { users: LeaderboardUser[] }) {
                   <div className="flex flex-col items-start">
                     <div className="min-w-0 flex-1">
                       <div className="font-semibold text-base sm:text-lg truncate max-w-40 sm:max-w-64 md:max-w-96 text-gray-900">
-                        {player.name}
+                        {player.username || player.name}
                       </div>
                     </div>
                     <div className="font-semibold text-[#e5383b] text-base sm:text-lg shrink-0">
@@ -45,8 +44,8 @@ export function Leaderboard({ users }: { users: LeaderboardUser[] }) {
                   </div>
                 </div>
                 <Link
-                  href={`/profile`}
-                  className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors duration-300 text-sm"
+                  href={`/profile/${player.username}`}
+                  className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors duration-300 text-sm"
                 >
                   <UserIcon className="w-4 h-4" />
                   Voir le profil
@@ -55,7 +54,7 @@ export function Leaderboard({ users }: { users: LeaderboardUser[] }) {
             </li>
           ))}
         </ul>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

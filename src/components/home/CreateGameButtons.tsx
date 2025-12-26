@@ -72,22 +72,36 @@ export default function CreateGameButtons() {
 
   return (
     <>
-      <Card>
-        <CardContent className="h-full">
-          <div className="w-full flex flex-col gap-2 h-full">
-            <Button onClick={handleCreateRoom} className="flex-1 hover:bg-primary/90 hover:text-primary-foreground">
-              <Plus className="size-5"/>
+      <Card className="h-full shadow-lg">
+        <CardContent className="p-4 sm:p-6 h-full">
+          <div className="w-full flex flex-col gap-3 h-full">
+            <Button
+              onClick={handleCreateRoom}
+              className="flex-1 h-auto py-5 sm:py-6 text-sm sm:text-base font-semibold hover:bg-primary/90 hover:text-primary-foreground shadow-sm"
+              size="lg"
+            >
+              <Plus className="size-4 sm:size-5 shrink-0"/>
               <span className="text-left">Créer une partie privée</span>
             </Button>
-            <Button onClick={() => setOpenJoinGameDialog(true)} className="flex gap-2 items-center flex-1 bg-blue-200 text-blue-500 border border-blue-500 hover:bg-blue-200/80 hover:text-blue-500">
-              <Search className="size-5"/>
+            <Button
+              onClick={() => setOpenJoinGameDialog(true)}
+              variant="outline"
+              className="flex gap-2 items-center flex-1 h-auto py-5 sm:py-6 text-sm sm:text-base font-semibold border-2 hover:bg-blue-50 dark:hover:bg-blue-950/20 hover:border-blue-400 transition-colors"
+              size="lg"
+            >
+              <Search className="size-4 sm:size-5 shrink-0"/>
               <span className="text-left">Rejoindre une partie privée</span>
             </Button>
-            <Button variant="outline" onClick={handleSearchGame}  className="flex gap-4 items-center flex-1 bg-green-200 hover:bg-green-200/80 hover:text-green-500 text-green-500 border border-green-500">
-              <Globe className="size-5"/>
-              <div className="flex flex-col">
+            <Button
+              variant="outline"
+              onClick={handleSearchGame}
+              className="flex gap-2 sm:gap-3 items-center flex-1 h-auto py-5 sm:py-6 text-sm sm:text-base font-semibold border-2 hover:bg-green-50 dark:hover:bg-green-950/20 hover:border-green-400 transition-colors"
+              size="lg"
+            >
+              <Globe className="size-4 sm:size-5 shrink-0"/>
+              <div className="flex flex-col items-start min-w-0">
                 <span className="text-left">Rechercher une partie</span>
-                <span className="text-xs text-black/50 text-left">Jouer avec un joueur aléatoire</span>
+                <span className="text-xs text-muted-foreground font-normal text-left">Jouer avec un joueur aléatoire</span>
               </div>
             </Button>
           </div>

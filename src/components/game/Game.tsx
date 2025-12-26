@@ -5,7 +5,9 @@ import { useEffect, useState } from "react";
 import { useSocket } from "../../hook/useSocket";
 import { useUser } from "../../store/user.store";
 import CurrentPlayerGrid from "./CurrentPlayerGrid";
+import GameChat from "./GameChat";
 import GameResultModal from "./GameResultModal";
+import { LeaveGameModal } from "./LeaveGameModal";
 import OpponentPlayerGrid from "./OpponentPlayerGrid";
 
 export interface GameState {
@@ -14,6 +16,15 @@ export interface GameState {
   players: PlayerGameState[];
   currentTurn: string;
   status: GameStatus;
+  leavingUserId?: string; // ID du joueur qui a quitté (forfait)
+  messages?: Message[]; // Messages du chat
+}
+
+export interface Message {
+  userId: string;
+  username: string;
+  message: string;
+  timestamp: Date;
 }
 
 export type GameStatus = "ORGANIZING_BOATS" | "IN_GAME" | "ENDED";
@@ -46,6 +57,9 @@ export default function Game({ gameId }: { gameId: string }) {
   const [gameStatus, setGameStatus] = useState<GameStatus>("ORGANIZING_BOATS");
   const [currentTurn, setCurrentTurn] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isForfeit, setIsForfeit] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   // Récupérer l'ID utilisateur depuis le backend
   useEffect(() => {
@@ -116,6 +130,16 @@ export default function Game({ gameId }: { gameId: string }) {
       setOpponentPlayer(opponent);
       setGameStatus(data.status);
       setCurrentTurn(data.currentTurn);
+
+      // Gérer le forfait
+      if (data.leavingUserId) {
+        setIsForfeit(true);
+      }
+
+      // Mettre à jour les messages
+      if (data.messages) {
+        setMessages(data.messages);
+      }
     });
 
     return () => {
@@ -136,8 +160,25 @@ export default function Game({ gameId }: { gameId: string }) {
       <GameResultModal
         open={gameStatus === "ENDED"}
         gameId={gameId}
+        isForfeit={isForfeit}
       />
-      <div className="flex flex-col gap-4">
+      <LeaveGameModal
+        open={showLeaveModal}
+        gameStatus={gameStatus}
+        gameId={gameId}
+        onClose={() => setShowLeaveModal(false)}
+      />
+      <div className="flex flex-col gap-4 relative">
+        {/* Bouton quitter la partie */}
+        <div className="absolute top-0 right-0">
+          <button
+            onClick={() => setShowLeaveModal(true)}
+            className="px-4 py-2 bg-destructive text-white rounded-md hover:bg-destructive/90"
+          >
+            Quitter la partie
+          </button>
+        </div>
+
         {gameStatus === "IN_GAME" && (
           <div className="flex justify-center items-center">
             <h1 className="text-4xl font-bold text-white">{currentPlayer.userId === currentTurn ? "Votre tour" : "Au tour de votre adversaire"}</h1>
@@ -157,6 +198,17 @@ export default function Game({ gameId }: { gameId: string }) {
             currentPlayerId={currentPlayer?.userId || ''}
             isDisabled={currentTurn !== currentPlayer?.userId || gameStatus !== "IN_GAME"}
           />
+          {/* Chat de partie */}
+          {socket && (
+            <div className="hidden lg:flex w-80 h-full shrink-0">
+              <GameChat
+                messages={messages}
+                currentUserId={currentUserId || user?.id || ''}
+                socket={socket}
+                gameId={gameId}
+              />
+            </div>
+          )}
         </div>
       </div>
     </>

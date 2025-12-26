@@ -13,16 +13,16 @@ export default async function ProfilePage() {
 
   if (!userStats) {
     return (
-      <div className="w-full max-w-6xl mx-auto py-10">
-        <div className="text-gray-900 text-center">
-          <p>Chargement des statistiques...</p>
+      <div className="w-full max-w-6xl mx-auto">
+        <div className="text-center py-10">
+          <p className="text-muted-foreground">Chargement des statistiques...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-10">
+    <div className="w-full max-w-6xl mx-auto">
       <ProfileContent userStats={userStats} />
     </div>
   );

@@ -6,6 +6,7 @@ import { useSocket } from "../../hook/useSocket";
 import { useUser } from "../../store/user.store";
 import { Button } from "../ui/button";
 import PlayerCard from "./PlayerCard";
+import { RoomCanceledModal } from "./RoomCanceledModal";
 
 export interface Player {
   id: string;
@@ -29,6 +30,8 @@ export default function Room({ roomId }: { roomId: string }) {
   const [opponentPlayer, setOpponentPlayer] = useState<Player | null>(null);
   const [isCreator, setIsCreator] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [showRoomCanceledModal, setShowRoomCanceledModal] = useState(false);
+  const [leavingPlayerName, setLeavingPlayerName] = useState<string | undefined>(undefined);
   const router = useRouter();
 
   const { user } = useUser();
@@ -141,10 +144,30 @@ export default function Room({ roomId }: { roomId: string }) {
       router.push(`/game/${data}`);
     });
 
+    // Listen to player leaving room
+    socket.on('player-left-room', (data: { roomId: string; leavingPlayerName: string; message: string }) => {
+      console.log('Player left room:', data);
+      // Afficher la modale avec le message
+      if (data.roomId === roomId) {
+        setLeavingPlayerName(data.leavingPlayerName);
+        setShowRoomCanceledModal(true);
+      }
+    });
+
+    // Listen to room closed
+    socket.on('room-closed', (data: { roomId: string }) => {
+      console.log('Room closed:', data);
+      if (data.roomId === roomId) {
+        setShowRoomCanceledModal(true);
+      }
+    });
+
     return () => {
       socket.off('room-data');
       socket.off('game-created');
       socket.off('game-joined');
+      socket.off('player-left-room');
+      socket.off('room-closed');
     };
 
   }, [socket, roomId, user?.id, currentUserId, router]);
@@ -164,16 +187,32 @@ export default function Room({ roomId }: { roomId: string }) {
   console.log('opponentPlayer', opponentPlayer);
 
   return (
-    <div className="flex flex-col gap-4">
-      <p>Room id: {room.id}</p>
-      <p>Code: {room.code}</p>
-      <div className="flex gap-4">
-        {/* Joueur actuel toujours à gauche */}
-        <PlayerCard player={currentPlayer} roomId={roomId} isCurrentUser={true} />
-        {/* Adversaire toujours à droite */}
-        <PlayerCard player={opponentPlayer} roomId={roomId} isCurrentUser={false} />
+    <>
+      <RoomCanceledModal
+        open={showRoomCanceledModal}
+        leavingPlayerName={leavingPlayerName}
+      />
+      <div className="flex flex-col gap-4 sm:gap-6 w-full max-w-4xl mx-auto">
+        <div className="text-center space-y-2">
+          <h1 className="text-2xl sm:text-3xl font-bold">Salle de jeu</h1>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 text-muted-foreground">
+            <span className="text-xs sm:text-sm">ID: {room.id}</span>
+            <span className="hidden sm:inline text-sm">•</span>
+            <span className="text-xs sm:text-sm font-mono font-semibold text-foreground">Code: {room.code}</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          {/* Joueur actuel toujours à gauche */}
+          <PlayerCard player={currentPlayer} roomId={roomId} isCurrentUser={true} />
+          {/* Adversaire toujours à droite */}
+          <PlayerCard player={opponentPlayer} roomId={roomId} isCurrentUser={false} />
+        </div>
+        <div className="flex justify-center pt-2 sm:pt-4">
+          <Button variant="outline" onClick={handleLeaveRoom} size="lg" className="w-full sm:w-auto">
+            Quitter la partie
+          </Button>
+        </div>
       </div>
-      <Button variant="outline" onClick={handleLeaveRoom}>Quitter la partie</Button>
-    </div>
+    </>
   )
 }

@@ -4,7 +4,8 @@ import { cookies } from "next/headers";
 
 export interface LeaderboardUser {
   id: string;
-  name: string;
+  username: string;
+  name?: string; // Keep for backward compatibility
   email: string;
   elo: number;
   index: number;

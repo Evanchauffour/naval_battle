@@ -40,7 +40,7 @@ export function LeaderboardWidget({ users }: { users: LeaderboardUser[] }) {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-sm truncate text-gray-900">
-                      {player.name}
+                      {player.username || player.name}
                     </div>
                     <div className="font-semibold text-[#e5383b] text-xs">
                       {player.elo} elo

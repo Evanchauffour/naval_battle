@@ -1,7 +1,6 @@
 import { Trophy } from "lucide-react";
 import { getLeaderboard } from "../../../../app/actions/leaderboard";
 import { Leaderboard } from "../../../../components/leaderboard/Leaderboard";
-import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
 import Pagination from "../../../../components/ui/Pagination";
 
 export default async function LeaderboardPage({
@@ -10,16 +9,16 @@ export default async function LeaderboardPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const params = await searchParams;
-  const currentPage = parseInt(params.page || "1", 10);
+  const currentPage = Number.parseInt(params.page || "1", 10);
   const limit = 10;
 
   const leaderboardData = await getLeaderboard(currentPage, limit);
 
   if (!leaderboardData) {
     return (
-      <div className="w-full max-w-6xl mx-auto py-10">
-        <div className="text-gray-900 text-center">
-          <p>Erreur lors du chargement du leaderboard...</p>
+      <div className="relative flex flex-col gap-4 sm:gap-6 w-full max-w-6xl mx-auto">
+        <div className="text-center">
+          <p className="text-muted-foreground">Erreur lors du chargement du leaderboard...</p>
         </div>
       </div>
     );
@@ -29,29 +28,32 @@ export default async function LeaderboardPage({
   const indexOfLastUser = indexOfFirstUser + leaderboardData.users.length;
 
   return (
-    <div className="w-full max-w-6xl mx-auto py-10">
-      <Card className="bg-white border border-gray-200 shadow-sm mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-gray-900 text-3xl">
-            <Trophy className="w-6 h-6" />
-            Leaderboard
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Leaderboard users={leaderboardData.users} />
-        </CardContent>
-      </Card>
+    <div className="relative flex flex-col gap-4 sm:gap-6 w-full max-w-6xl mx-auto">
+      <div className="space-y-1 sm:space-y-2">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold flex items-center gap-2 sm:gap-3">
+          <Trophy className="w-5 h-5 sm:w-6 sm:h-7 text-primary shrink-0" />
+          Classement
+        </h1>
+        <p className="text-muted-foreground text-sm sm:text-base">
+          Consultez le classement des meilleurs joueurs
+        </p>
+      </div>
 
-      {leaderboardData.meta.totalPages > 1 && (
-        <div className="mt-6">
-          <Pagination
-            indexOfFirstUser={indexOfFirstUser}
-            indexOfLastUser={indexOfLastUser}
-            totalItems={leaderboardData.meta.total}
-            totalPages={leaderboardData.meta.totalPages}
-          />
+      <div className="flex flex-col gap-4">
+        <div className="overflow-x-auto">
+          <Leaderboard users={leaderboardData.users} />
         </div>
-      )}
+        {leaderboardData.meta.totalPages > 1 && (
+          <div className="mt-2 sm:mt-4">
+            <Pagination
+              indexOfFirstUser={indexOfFirstUser}
+              indexOfLastUser={indexOfLastUser}
+              totalItems={leaderboardData.meta.total}
+              totalPages={leaderboardData.meta.totalPages}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

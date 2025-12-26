@@ -1,7 +1,6 @@
 'use client'
 
-import { cn } from "@/lib/utils";
-import { History, HomeIcon, List, LogOut, User } from "lucide-react";
+import { History, HomeIcon, List, LogOut, Menu, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,13 +9,24 @@ import { useUser } from "../store/user.store";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
+import { cn } from "@/lib/utils";
+import { useState } from "react";
 
-export default function Sidebar() {
+export default function MobileSidebar() {
+  const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const { user } = useUser();
 
   const handleLogout = async () => {
     await logout();
+    setOpen(false);
   }
 
   const getUserInitials = () => {
@@ -36,36 +46,43 @@ export default function Sidebar() {
     return user?.username || user?.name || user?.firstName || "Utilisateur";
   };
 
-  return (
-    <aside className="hidden lg:flex w-64 bg-sidebar border-r border-sidebar-border h-full flex-col shadow-sm">
-      <div className="p-6 border-b border-sidebar-border">
-        <Image src="/logo.png" alt="logo" width={80} height={80} className="mx-auto"/>
-      </div>
-      <nav className="flex-1 px-3 py-4 overflow-y-auto">
+  const SidebarContent = () => (
+    <>
+      <SheetHeader className="border-b border-sidebar-border pb-4">
+        <div className="flex items-center justify-center">
+          <Image src="/logo.png" alt="logo" width={60} height={60} />
+        </div>
+        <SheetTitle className="sr-only">Navigation</SheetTitle>
+      </SheetHeader>
+      <nav className="flex-1 px-3 py-4">
         <ul className="flex flex-col gap-1">
           <SidebarItem
             href="/"
             icon={<HomeIcon className="w-5 h-5" />}
             label="Accueil"
             isActive={pathname === '/'}
+            onClick={() => setOpen(false)}
           />
           <SidebarItem
             href="/leaderboard"
             icon={<List className="w-5 h-5" />}
             label="Classement"
             isActive={pathname === '/leaderboard'}
+            onClick={() => setOpen(false)}
           />
           <SidebarItem
             href="/history"
             icon={<History className="w-5 h-5" />}
             label="Historique"
             isActive={pathname === '/history'}
+            onClick={() => setOpen(false)}
           />
           <SidebarItem
             href="/profile"
             icon={<User className="w-5 h-5" />}
             label="Profil"
             isActive={pathname === '/profile'}
+            onClick={() => setOpen(false)}
           />
         </ul>
       </nav>
@@ -102,25 +119,46 @@ export default function Sidebar() {
           Déconnexion
         </Button>
       </div>
-    </aside>
-  )
+    </>
+  );
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden"
+          aria-label="Ouvrir le menu"
+        >
+          <Menu className="h-6 w-6" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-[280px] p-0 bg-sidebar border-sidebar-border flex flex-col">
+        <SidebarContent />
+      </SheetContent>
+    </Sheet>
+  );
 }
 
 const SidebarItem = ({
   href,
   icon,
   label,
-  isActive
+  isActive,
+  onClick
 }: {
   href: string
   icon: React.ReactNode
   label: string
   isActive?: boolean
+  onClick?: () => void
 }) => {
   return (
     <li>
       <Link
         href={href}
+        onClick={onClick}
         className={cn(
           "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
           isActive
@@ -136,3 +174,4 @@ const SidebarItem = ({
     </li>
   )
 }
+

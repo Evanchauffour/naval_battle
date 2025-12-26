@@ -53,20 +53,24 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
   }
 
   return (
-    <div className="relative flex flex-col gap-4 h-full overflow-auto w-full max-w-6xl mx-auto py-10 bg-white">
-      <div>
-        <h1 className="text-4xl font-bold flex items-center gap-2">
+    <div className="relative flex flex-col gap-4 sm:gap-6 w-full max-w-6xl mx-auto">
+      <div className="space-y-1 sm:space-y-2">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold flex items-center gap-2 sm:gap-3">
           Historique des parties
         </h1>
-        <p className="text-sm sm:text-base text-gray-700 mb-6">
+        <p className="text-muted-foreground text-sm sm:text-base">
           Consultez vos performances récentes
         </p>
       </div>
 
       <div className="flex flex-col gap-4">
-        <History games={games}/>
+        <div className="overflow-x-auto">
+          <History games={games}/>
+        </div>
         {metaData.totalPages > 1 && (
-          <Pagination indexOfFirstUser={(currentPage - 1) * limit} indexOfLastUser={currentPage * limit} totalItems={metaData.total} totalPages={metaData.totalPages} />
+          <div className="mt-2 sm:mt-4">
+            <Pagination indexOfFirstUser={(currentPage - 1) * limit} indexOfLastUser={currentPage * limit} totalItems={metaData.total} totalPages={metaData.totalPages} />
+          </div>
         )}
       </div>
     </div>
