@@ -8,9 +8,11 @@ import { Button } from "../ui/button";
 import FormInput from "../ui/FormInput";
 
 const registerSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
-  password: z.string().min(1, "Password is required"),
+  firstName: z.string().min(1, "Le prénom est requis"),
+  lastName: z.string().min(1, "Le nom est requis"),
+  username: z.string().min(3, "Le nom d'utilisateur doit contenir au moins 3 caractères"),
+  email: z.string().email("Email invalide"),
+  password: z.string().min(6, "Le mot de passe doit contenir au moins 6 caractères"),
 });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
@@ -48,9 +50,23 @@ export default function SignupForm() {
       <FormInput<RegisterFormData>
         register={register}
         errors={errors}
-        label="Name"
-        placeholder="Name"
-        name="name"
+        label="Prénom"
+        placeholder="Prénom"
+        name="firstName"
+      />
+      <FormInput<RegisterFormData>
+        register={register}
+        errors={errors}
+        label="Nom"
+        placeholder="Nom"
+        name="lastName"
+      />
+      <FormInput<RegisterFormData>
+        register={register}
+        errors={errors}
+        label="Nom d'utilisateur"
+        placeholder="Nom d'utilisateur"
+        name="username"
       />
       <FormInput<RegisterFormData>
         register={register}
@@ -62,9 +78,10 @@ export default function SignupForm() {
       <FormInput<RegisterFormData>
         register={register}
         errors={errors}
-        label="Password"
-        placeholder="Password"
+        label="Mot de passe"
+        placeholder="Mot de passe"
         name="password"
+        type="password"
       />
       <Button
         type="submit"
