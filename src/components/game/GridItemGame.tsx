@@ -28,7 +28,7 @@ export default function GridItemGame({ gridSize, isHit, isMiss, isDead, select, 
 
   return (
     <button
-      className={`flex items-center justify-center relative rounded-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-200`}
+      className={`flex items-center justify-center relative rounded-md bg-muted/30 border border-border hover:bg-muted/50 hover:border-foreground/30 transition-all duration-200`}
       style={{ width: gridSize, height: gridSize }}
       onClick={() => {
         if (isMiss && !isMissAnimationEnded) {
@@ -49,7 +49,7 @@ export default function GridItemGame({ gridSize, isHit, isMiss, isDead, select, 
               dotLottieRefCallback={setMissLottie}
             />
           )}
-          {isMissAnimationEnded && <div className="w-1 h-1 bg-white rounded-full" />}
+          {isMissAnimationEnded && <div className="w-1 h-1 bg-foreground rounded-full" />}
         </>
       }
       {isHit &&

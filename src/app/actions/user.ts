@@ -5,10 +5,13 @@ import { cookies } from "next/headers"
 export interface User {
   id: string
   email: string
-  name: string
-  isVerified: boolean
-  createdAt: Date
-  updatedAt: Date
+  name?: string
+  username?: string
+  firstName?: string
+  lastName?: string
+  isVerified?: boolean
+  createdAt?: Date
+  updatedAt?: Date
 }
 
 export async function getCurrentUser(): Promise<User | null> {

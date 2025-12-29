@@ -86,7 +86,7 @@ export default function CreateGameButtons() {
             <Button
               onClick={() => setOpenJoinGameDialog(true)}
               variant="outline"
-              className="flex gap-2 items-center flex-1 h-auto py-5 sm:py-6 text-sm sm:text-base font-semibold border-2 hover:bg-blue-50 dark:hover:bg-blue-950/20 hover:border-blue-400 transition-colors"
+              className="flex gap-2 items-center flex-1 h-auto py-5 sm:py-6 text-sm sm:text-base font-semibold border-2 hover:bg-muted hover:border-foreground/50 transition-colors"
               size="lg"
             >
               <Search className="size-4 sm:size-5 shrink-0"/>
@@ -95,7 +95,7 @@ export default function CreateGameButtons() {
             <Button
               variant="outline"
               onClick={handleSearchGame}
-              className="flex gap-2 sm:gap-3 items-center flex-1 h-auto py-5 sm:py-6 text-sm sm:text-base font-semibold border-2 hover:bg-green-50 dark:hover:bg-green-950/20 hover:border-green-400 transition-colors"
+              className="flex gap-2 sm:gap-3 items-center flex-1 h-auto py-5 sm:py-6 text-sm sm:text-base font-semibold border-2 hover:bg-muted hover:border-foreground/50 transition-colors"
               size="lg"
             >
               <Globe className="size-4 sm:size-5 shrink-0"/>

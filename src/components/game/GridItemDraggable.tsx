@@ -36,7 +36,7 @@ export default function GridItemDraggable({ index, row, col, gridSize, isHit, is
   return (
     <div
       ref={setNodeRef}
-      className={`relative rounded-md border border-white/20 transition-all duration-200 flex items-center justify-center`}
+      className={`relative rounded-md border border-border bg-muted/20 transition-all duration-200 flex items-center justify-center`}
       style={{ width: gridSize, height: gridSize }}
       onClick={() => {
         if (isMiss && !isMissAnimationEnded) {
@@ -57,7 +57,7 @@ export default function GridItemDraggable({ index, row, col, gridSize, isHit, is
               />
             </div>
           )}
-          {isMissAnimationEnded && <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"><div className="w-1 h-1 bg-white rounded-full" /></div>}
+          {isMissAnimationEnded && <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"><div className="w-1 h-1 bg-foreground rounded-full" /></div>}
         </>
       }
       {isHit &&

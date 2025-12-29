@@ -67,7 +67,7 @@ export default function JoinGameDialog({ open, setOpen, userId }: { open: boolea
               type="text"
               maxLength={1}
               {...reg1}
-              className="size-14 rounded-sm border border-blue-500 text-blue-500 flex items-center text-center"
+              className="size-14 rounded-sm border border-border text-foreground flex items-center text-center focus:border-foreground focus:ring-2 focus:ring-ring"
               ref={(el) => {
                 reg1.ref(el);
                 ref1.current = el;
@@ -83,7 +83,7 @@ export default function JoinGameDialog({ open, setOpen, userId }: { open: boolea
               type="text"
               maxLength={1}
               {...reg2}
-              className="size-14 rounded-sm border border-blue-500 text-blue-500 flex items-center text-center"
+              className="size-14 rounded-sm border border-border text-foreground flex items-center text-center focus:border-foreground focus:ring-2 focus:ring-ring"
               ref={(el) => {
                 reg2.ref(el);
                 ref2.current = el;
@@ -107,7 +107,7 @@ export default function JoinGameDialog({ open, setOpen, userId }: { open: boolea
               type="text"
               maxLength={1}
               {...reg3}
-              className="size-14 rounded-sm border border-blue-500 text-blue-500 flex items-center text-center"
+              className="size-14 rounded-sm border border-border text-foreground flex items-center text-center focus:border-foreground focus:ring-2 focus:ring-ring"
               ref={(el) => {
                 reg3.ref(el);
                 ref3.current = el;
@@ -131,7 +131,7 @@ export default function JoinGameDialog({ open, setOpen, userId }: { open: boolea
               type="text"
               maxLength={1}
               {...reg4}
-              className="size-14 rounded-sm border border-blue-500 text-blue-500 flex items-center text-center"
+              className="size-14 rounded-sm border border-border text-foreground flex items-center text-center focus:border-foreground focus:ring-2 focus:ring-ring"
               ref={(el) => {
                 reg4.ref(el);
                 ref4.current = el;

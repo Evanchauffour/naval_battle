@@ -49,7 +49,7 @@ export interface BoatInterface {
   }[];
 }
 
-export default function Game({ gameId }: { gameId: string }) {
+export default function Game({ gameId }: { readonly gameId: string }) {
   const { user } = useUser();
   const { socket } = useSocket();
   const [currentPlayer, setCurrentPlayer] = useState<PlayerGameState | null>(null);
@@ -168,48 +168,78 @@ export default function Game({ gameId }: { gameId: string }) {
         gameId={gameId}
         onClose={() => setShowLeaveModal(false)}
       />
-      <div className="flex flex-col gap-4 relative">
-        {/* Bouton quitter la partie */}
-        <div className="absolute top-0 right-0">
-          <button
-            onClick={() => setShowLeaveModal(true)}
-            className="px-4 py-2 bg-destructive text-white rounded-md hover:bg-destructive/90"
-          >
-            Quitter la partie
-          </button>
-        </div>
+      <div className="flex h-full w-full relative">
+        {gameStatus === "IN_GAME" ? (
+          <>
+            {/* Notre grille compacte en haut à gauche */}
+            <div className="absolute top-4 left-4 z-10 group">
+              <div className="transition-all duration-300 ease-in-out group-hover:scale-150 group-hover:z-50 group-hover:shadow-2xl origin-top-left">
+                <CurrentPlayerGrid
+                  boatsList={currentPlayer?.ships || []}
+                  gameId={gameId}
+                  playerId={currentPlayer?.userId || ''}
+                  selectedCells={opponentPlayer.selectedCells || []}
+                  gameStatus={gameStatus}
+                  isCompact={true}
+                />
+              </div>
+            </div>
 
-        {gameStatus === "IN_GAME" && (
-          <div className="flex justify-center items-center">
-            <h1 className="text-4xl font-bold text-white">{currentPlayer.userId === currentTurn ? "Votre tour" : "Au tour de votre adversaire"}</h1>
-          </div>
-        )}
-        <div className='flex justify-center items-start gap-14'>
-          <CurrentPlayerGrid
-            boatsList={currentPlayer?.ships || []}
-            gameId={gameId}
-            playerId={currentPlayer?.userId || ''}
-            selectedCells={opponentPlayer.selectedCells || []}
-            gameStatus={gameStatus}
-          />
-          <OpponentPlayerGrid boatsList={opponentPlayer?.ships || []}
-            selectedCells={currentPlayer.selectedCells || []}
-            gameId={gameId}
-            currentPlayerId={currentPlayer?.userId || ''}
-            isDisabled={currentTurn !== currentPlayer?.userId || gameStatus !== "IN_GAME"}
-          />
-          {/* Chat de partie */}
-          {socket && (
-            <div className="hidden lg:flex w-80 h-full shrink-0">
-              <GameChat
-                messages={messages}
-                currentUserId={currentUserId || user?.id || ''}
-                socket={socket}
+            {/* Chat à droite qui prend toute la hauteur */}
+            {socket && (
+              <div className="absolute top-0 right-0 h-full w-80 z-10">
+                <GameChat
+                  messages={messages}
+                  currentUserId={currentUserId || user?.id || ''}
+                  socket={socket}
+                  gameId={gameId}
+                />
+              </div>
+            )}
+
+            {/* Bouton quitter collé à gauche du chat */}
+            <div className="absolute top-4 right-80 z-20 mr-4">
+              <button
+                onClick={() => setShowLeaveModal(true)}
+                className="px-4 py-2 bg-destructive text-white rounded-lg hover:bg-destructive/90 transition-colors shadow-lg"
+              >
+                Quitter
+              </button>
+            </div>
+
+            {/* Grille de l'adversaire au centre */}
+            <div className="flex-1 flex items-center justify-center pr-80">
+              <OpponentPlayerGrid
+                boatsList={opponentPlayer?.ships || []}
+                selectedCells={currentPlayer.selectedCells || []}
                 gameId={gameId}
+                currentPlayerId={currentPlayer?.userId || ''}
+                isDisabled={currentTurn !== currentPlayer?.userId || gameStatus !== "IN_GAME"}
+                isYourTurn={currentPlayer?.userId === currentTurn}
               />
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <>
+            {/* Header pour l'organisation */}
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
+                Organisez vos bateaux
+              </h1>
+            </div>
+            {/* Grille complète pour l'organisation des bateaux */}
+            <div className="flex-1 flex items-center justify-center">
+              <CurrentPlayerGrid
+                boatsList={currentPlayer?.ships || []}
+                gameId={gameId}
+                playerId={currentPlayer?.userId || ''}
+                selectedCells={opponentPlayer.selectedCells || []}
+                gameStatus={gameStatus}
+                isCompact={false}
+              />
+            </div>
+          </>
+        )}
       </div>
     </>
   )

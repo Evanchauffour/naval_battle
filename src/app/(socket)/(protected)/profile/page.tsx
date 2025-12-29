@@ -23,7 +23,16 @@ export default async function ProfilePage() {
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <ProfileContent userStats={userStats} />
+      <ProfileContent
+        userStats={userStats}
+        isOwnProfile={true}
+        profileUser={{
+          username: user.username || user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        }}
+      />
     </div>
   );
 }

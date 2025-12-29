@@ -10,9 +10,9 @@ import Boat from './Boat';
 import { BoatInterface, GameStatus } from './Game';
 import GridItemDraggable from './GridItemDraggable';
 
-export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selectedCells, gameStatus }: { boatsList: BoatInterface[], gameId: string, playerId: string, selectedCells: { left: number; top: number }[], gameStatus: GameStatus }) {
+export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selectedCells, gameStatus, isCompact }: { boatsList: BoatInterface[], gameId: string, playerId: string, selectedCells: { left: number; top: number }[], gameStatus: GameStatus, isCompact?: boolean }) {
   const { socket } = useSocket();
-  const gridSize = 32;
+  const gridSize = isCompact ? 16 : 32;
   const [grid, setGrid] = useState<number[][]>([
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -223,6 +223,46 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
     }
   }
 
+  const handleRotate = useCallback((boatId: number) => {
+    setBoats((prev) => {
+      const targetBoat = prev.find(boat => boat.id === boatId);
+      if (!targetBoat) return prev;
+
+      // Inverser width et height
+      const newWidth = targetBoat.height;
+      const newHeight = targetBoat.width;
+      const currentLeft = targetBoat.coordinates[0].left;
+      const currentTop = targetBoat.coordinates[0].top;
+
+      // Vérifier que le bateau peut être placé dans la nouvelle orientation
+      if (currentLeft + newWidth > 10 || currentTop + newHeight > 10) {
+        return prev; // Ne pas tourner si ça dépasse
+      }
+
+      // Recalculer les coordonnées avec la nouvelle orientation
+      const newCoordinates = determineBoatCoordinates(newHeight, newWidth, currentLeft, currentTop);
+
+      // Vérifier qu'il n'y a pas de chevauchement avec les autres bateaux
+      const otherBoats = prev.filter(boat => boat.id !== boatId);
+      if (isOverlapping(otherBoats, newCoordinates)) {
+        return prev; // Ne pas tourner si ça chevauche
+      }
+
+      // Mettre à jour le bateau
+      return prev.map((boat) => {
+        if (boat.id === boatId) {
+          return {
+            ...boat,
+            width: newWidth,
+            height: newHeight,
+            coordinates: newCoordinates
+          };
+        }
+        return boat;
+      });
+    });
+  }, []);
+
   const handleValidate = () => {
     setIsValidate(!isValidate);
     socket?.emit('set-player-ready', { gameId, boats: boats });
@@ -235,12 +275,18 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
   }
 
   return (
-    <div className='flex flex-col gap-6'>
-    <div className='w-fit rounded-md shadow-2xl'>
-      <div
-        className='grid relative'
-        style={{ gridTemplateColumns: `repeat(10, ${gridSize}px)` }}
-      >
+    <div className={`flex flex-col ${isCompact ? 'gap-2' : 'gap-6'}`}>
+    <div className={`w-fit rounded-lg shadow-xl overflow-hidden ${isCompact ? 'border border-border bg-card/80 backdrop-blur-sm' : 'bg-card/50 backdrop-blur-sm'}`}>
+      {isCompact && (
+        <div className="text-xs text-foreground bg-muted px-3 py-2 text-center font-semibold border-b border-border">
+          Ma grille
+        </div>
+      )}
+      <div className={`${isCompact ? 'p-2' : 'p-0'}`}>
+        <div
+          className='grid relative'
+          style={{ gridTemplateColumns: `repeat(10, ${gridSize}px)` }}
+        >
         <DndContext modifiers={[snapToGridModifier, restrictToParentElement]} onDragEnd={handleDragEnd}>
         {grid.map((row, rowIndex) => (
           row.map((value, colIndex) => (
@@ -262,19 +308,24 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
             boatData={boat}
             gridSize={gridSize}
             disabled={isValidate}
+            onRotate={handleRotate}
           />
         ))}
         </DndContext>
+        </div>
       </div>
       {isValidate && gameStatus === "ORGANIZING_BOATS" && (
-      <div className='absolute top-0 left-0 bg-black/60 w-full h-full rounded-md z-10 flex flex-col items-center justify-center gap-4'>
-        <Loader2 className="animate-spin text-white" />
-        <p className='text-white'>En attente de la validation de l&apos;autre joueur</p>
+      <div className='absolute top-0 left-0 bg-black/70 w-full h-full rounded-lg z-10 flex flex-col items-center justify-center gap-4 backdrop-blur-sm'>
+        <Loader2 className="animate-spin text-white w-8 h-8" />
+        <p className='text-white font-medium'>En attente de la validation de l&apos;autre joueur</p>
       </div>
       )}
     </div>
-    {gameStatus === "ORGANIZING_BOATS" && (
+    {gameStatus === "ORGANIZING_BOATS" && !isCompact && (
       <div className="flex flex-col gap-2">
+        <p className="text-sm text-muted-foreground text-center">
+          Double-cliquez sur un bateau pour le faire pivoter
+        </p>
         {!isValidate && (
         <Button variant={"outline"} className="cursor-pointer" onClick={regenerateBoats} disabled={isLoading}>
           {isLoading ? "Génération..." : "Regénérer les bateaux"}

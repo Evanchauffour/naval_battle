@@ -46,14 +46,14 @@ export default function GameChat({
 
   const Container = hideHeader ? 'div' : Card;
   const containerClassName = hideHeader
-    ? 'h-full flex flex-col bg-[#1A1A1A] border border-white/20 rounded-lg'
-    : 'h-[300px] sm:h-full lg:h-full flex flex-col bg-[#1A1A1A] border border-white/20 rounded-lg';
+    ? 'h-full flex flex-col bg-card/30 backdrop-blur-sm border border-border rounded-lg shadow-xl'
+    : 'h-full flex flex-col bg-card/30 backdrop-blur-sm border border-border rounded-none shadow-xl';
 
   return (
     <Container className={containerClassName}>
       {!hideHeader && (
-        <CardHeader className="border-b border-white/20 p-4 bg-[#1A1A1A]">
-          <CardTitle className="text-base sm:text-lg text-foreground">
+        <CardHeader className="border-b border-border p-4">
+          <CardTitle className="text-base sm:text-lg text-foreground font-semibold">
             Chat de la partie
           </CardTitle>
         </CardHeader>
@@ -76,8 +76,8 @@ export default function GameChat({
                 <div
                   className={`max-w-[85%] sm:max-w-[80%] rounded-lg px-3 py-2 ${
                     message.userId === currentUserId
-                      ? 'bg-primary text-white'
-                      : 'bg-white/10 text-foreground'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-muted text-foreground'
                   }`}
                 >
                   <div className="text-xs font-semibold mb-1 opacity-90">
@@ -98,18 +98,18 @@ export default function GameChat({
         </div>
 
         {/* Input area */}
-        <div className="border-t border-white/20 p-4 bg-[#1A1A1A]">
+        <div className="border-t border-border p-4">
           <form onSubmit={handleSendMessage} className="flex gap-2">
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Tapez votre message..."
-              className="flex-1 text-sm bg-white/10 border-white/20 text-foreground placeholder:text-muted-foreground"
+              className="flex-1 text-sm bg-muted border-border text-foreground placeholder:text-muted-foreground focus:bg-muted/80"
             />
             <Button
               type="submit"
               disabled={!newMessage.trim()}
-              className="text-sm px-4 bg-primary hover:bg-primary/90 text-white"
+              className="text-sm px-4 bg-primary hover:bg-primary/90 text-primary-foreground shrink-0"
             >
               Envoyer
             </Button>

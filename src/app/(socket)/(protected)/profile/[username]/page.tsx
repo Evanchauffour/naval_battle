@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { getCurrentUser } from "../../../../../app/actions/user";
 import ProfileContent from "../../../../../components/profile/ProfileContent";
 
 export default async function UserProfilePage({
@@ -14,6 +15,9 @@ export default async function UserProfilePage({
   if (!accessToken) {
     redirect('/signin');
   }
+
+  // Récupérer l'utilisateur connecté
+  const currentUser = await getCurrentUser();
 
   let userStats = null;
 
@@ -47,9 +51,25 @@ export default async function UserProfilePage({
     );
   }
 
+  // Vérifier si c'est le profil de l'utilisateur connecté
+  const isOwnProfile = currentUser ? (
+    (currentUser.username && currentUser.username === username) ||
+    (currentUser.name && currentUser.name === username) ||
+    (userStats.user && currentUser.id === userStats.user.id)
+  ) : false;
+
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <ProfileContent userStats={userStats} />
+      <ProfileContent
+        userStats={userStats}
+        isOwnProfile={isOwnProfile}
+        profileUser={isOwnProfile && currentUser ? {
+          username: currentUser.username || currentUser.name || '',
+          firstName: currentUser.firstName,
+          lastName: currentUser.lastName,
+          email: currentUser.email || '',
+        } : undefined}
+      />
     </div>
   );
 }
