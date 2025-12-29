@@ -1,10 +1,10 @@
-import { getLeaderboard } from "@/app/actions/leaderboard";
+import { getLeaderboard, type LeaderboardUser } from "@/app/actions/leaderboard";
 import { Trophy } from "lucide-react";
 import { LeaderboardWidget as LeaderboardWidgetComponent } from "../widgets/leaderboard";
 import Widget from "./Widget";
 
 export default async function LeaderboardWidget({ className }: { className?: string }) {
-  let users = [];
+  let users: LeaderboardUser[] = [];
 
   try {
     const leaderboardData = await getLeaderboard(1, 5);

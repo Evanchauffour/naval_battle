@@ -24,7 +24,7 @@ const updateProfileSchema = z.object({
   confirmPassword: z.string().optional().or(z.literal('')),
 }).refine((data) => {
   const hasNewPassword = data.newPassword && data.newPassword.trim() !== ''
-  if (hasNewPassword) {
+  if (hasNewPassword && data.newPassword) {
     if (data.newPassword.length < 6) {
       return false
     }
@@ -36,7 +36,7 @@ const updateProfileSchema = z.object({
   path: ["confirmPassword"],
 }).refine((data) => {
   const hasNewPassword = data.newPassword && data.newPassword.trim() !== ''
-  if (hasNewPassword) {
+  if (hasNewPassword && data.newPassword) {
     return data.newPassword.length >= 6
   }
   return true
