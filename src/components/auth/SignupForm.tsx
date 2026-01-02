@@ -25,6 +25,8 @@ export default function SignupForm() {
   } = useForm<RegisterFormData>({ resolver: zodResolver(registerSchema) });
 
   const onSubmit = async (data: RegisterFormData) => {
+    console.log('api url:', process.env.NEXT_PUBLIC_API_URL);
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
         method: 'POST',
