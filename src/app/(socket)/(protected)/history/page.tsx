@@ -10,6 +10,10 @@ export interface Game {
   currentPlayerScore: number;
   opponentScore: number;
   status: string;
+  opponent: {
+    id: string;
+    username: string;
+  };
 }
 
 export default async function HistoryPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
@@ -46,6 +50,7 @@ export default async function HistoryPage({ searchParams }: { searchParams: Prom
     }
 
     const data = await response.json();
+    console.log(data);
     games = data.games;
     metaData = data.meta;
   } catch (error) {

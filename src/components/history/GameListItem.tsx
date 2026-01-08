@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import { Calendar, Gamepad2, Trophy } from 'lucide-react'
+import Link from 'next/link'
 
 export default function GameListItem({ game }: { game: Game }) {
 
@@ -35,6 +36,7 @@ export default function GameListItem({ game }: { game: Game }) {
                   <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-400 font-poppins">
                     {game.isWinner ? 'Victoire' : 'Défaite'}
                   </span>
+                  <span className="text-xs sm:text-sm text-gray-400 truncate">vs <Link href={`/profile/${game.opponent.username}`} className='underline'>{game.opponent.username}</Link></span>
                 </div>
               </div>
             </div>
