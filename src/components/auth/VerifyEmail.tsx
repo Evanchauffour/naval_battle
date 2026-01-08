@@ -1,4 +1,3 @@
-// app/(auth)/verify-email/VerifyEmailClient.tsx  ← CLIENT
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ export default function VerifyEmail({ token }: Props) {
   const [isError, setIsError] = useState(false);
 
   const handleVerifyEmail = useCallback(async () => {
-    if (!token) { setIsError(true); return; }  // 👈 évite l’undefined en prod
+    if (!token) { setIsError(true); return; }
     setIsLoading(true);
     try {
       const response = await fetch(process.env.NEXT_PUBLIC_API_URL + '/auth/verify-email', {

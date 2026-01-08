@@ -9,6 +9,7 @@ import GameChat from "./GameChat";
 import GameResultModal from "./GameResultModal";
 import { LeaveGameModal } from "./LeaveGameModal";
 import OpponentPlayerGrid from "./OpponentPlayerGrid";
+import TurnNotificationModal from "./TurnNotificationModal";
 
 export interface GameState {
   gameId: string;
@@ -60,6 +61,8 @@ export default function Game({ gameId }: { readonly gameId: string }) {
   const [isForfeit, setIsForfeit] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [showTurnNotification, setShowTurnNotification] = useState(false);
+  const [previousTurn, setPreviousTurn] = useState<string | null>(null);
 
   // Récupérer l'ID utilisateur depuis le backend
   useEffect(() => {
@@ -150,6 +153,20 @@ export default function Game({ gameId }: { readonly gameId: string }) {
   console.log('currentPlayer', currentPlayer);
   console.log('opponentPlayer', opponentPlayer);
 
+  // Détecter les changements de tour et afficher la modale
+  useEffect(() => {
+    if (currentTurn && gameStatus === "IN_GAME" && previousTurn !== null && currentTurn !== previousTurn) {
+      setShowTurnNotification(true);
+      // Réinitialiser après 2.1 secondes pour permettre à la modale de se fermer proprement
+      setTimeout(() => {
+        setShowTurnNotification(false);
+      }, 2100);
+    }
+    if (currentTurn) {
+      setPreviousTurn(currentTurn);
+    }
+  }, [currentTurn, gameStatus, previousTurn]);
+
 
   if (!currentPlayer || !opponentPlayer) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-10 h-10 animate-spin" /></div>;
@@ -167,6 +184,10 @@ export default function Game({ gameId }: { readonly gameId: string }) {
         gameStatus={gameStatus}
         gameId={gameId}
         onClose={() => setShowLeaveModal(false)}
+      />
+      <TurnNotificationModal
+        isYourTurn={currentPlayer?.userId === currentTurn}
+        show={showTurnNotification}
       />
       <div className="flex h-full w-full relative">
         {gameStatus === "IN_GAME" ? (

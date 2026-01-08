@@ -62,6 +62,7 @@ export default function LoginForm() {
         label="Password"
         placeholder="Password"
         name="password"
+        type="password"
       />
       <Button
         type="submit"

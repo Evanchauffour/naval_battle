@@ -20,8 +20,9 @@ export default function PlayerCard({ player, roomId, isCurrentUser }: { player: 
 
   const handleReady = () => {
     if (!player) return;
-    setIsReady(!isReady);
-    socket?.emit('set-ready', { roomId, isReady });
+    const newReadyState = !isReady;
+    setIsReady(newReadyState);
+    socket?.emit('set-ready', { roomId, isReady: newReadyState });
   }
 
   if (!player) {
@@ -29,26 +30,30 @@ export default function PlayerCard({ player, roomId, isCurrentUser }: { player: 
       <Card className="flex-1 flex justify-center items-center min-h-[180px] sm:min-h-[200px] border-dashed">
         <CardContent className="flex flex-col items-center gap-3 p-6">
           <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin text-muted-foreground" />
-          <p className="text-xs sm:text-sm text-muted-foreground text-center">En attente d'un joueur...</p>
+          <p className="text-xs sm:text-sm text-muted-foreground text-center">En attente d&apos;un joueur...</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="flex-1 relative overflow-hidden shadow-lg">
+    <Card className={`flex-1 flex flex-col shadow-lg ${isReady ? 'bg-green-500/10 dark:bg-green-500/20 border-2 border-green-500' : ''}`}>
       {isReady ? (
-        <div className="absolute top-0 left-0 w-full h-full bg-green-500/10 dark:bg-green-500/20 border-2 border-green-500 rounded-xl flex flex-col gap-3 sm:gap-4 justify-center items-center p-4 sm:p-6 z-10">
-          <div className="p-3 sm:p-4 rounded-full bg-green-500/20">
-            <CheckCircle className="w-8 h-8 sm:w-12 sm:h-12 text-green-600 dark:text-green-400" />
-          </div>
-          <p className="text-center text-lg sm:text-xl font-bold text-green-700 dark:text-green-400">Prêt !</p>
+        <>
+          <CardContent className="flex flex-col items-center justify-center gap-2 flex-1 p-4 sm:p-6">
+            <div className="p-2 sm:p-3 rounded-full bg-green-500/20">
+              <CheckCircle className="w-6 h-6 sm:w-10 sm:h-10 text-green-600 dark:text-green-400" />
+            </div>
+            <p className="text-center text-base sm:text-lg font-bold text-green-700 dark:text-green-400">Prêt !</p>
+          </CardContent>
           {isCurrentUser && (
-            <Button variant="outline" className="mt-2 w-full sm:w-auto" onClick={handleReady}>
-              Annuler
-            </Button>
+            <CardFooter className="pt-0 pb-3 sm:pb-4 flex justify-center">
+              <Button variant="outline" className="w-full sm:w-auto" onClick={handleReady}>
+                Annuler
+              </Button>
+            </CardFooter>
           )}
-        </div>
+        </>
       ) : (
         <>
           <CardHeader className="pb-3 sm:pb-4">
