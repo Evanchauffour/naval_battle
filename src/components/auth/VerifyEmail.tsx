@@ -6,12 +6,14 @@ import { CheckCircle, Loader2, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useUserActions } from "../../store/user.store";
 
 type Props = { token: string | null };
 
 export default function VerifyEmail({ token }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
+  const { setUser } = useUserActions();
 
   const handleVerifyEmail = useCallback(async () => {
     if (!token) { setIsError(true); return; }
@@ -23,7 +25,10 @@ export default function VerifyEmail({ token }: Props) {
         body: JSON.stringify({ token }),
         credentials: 'include',
       });
-      if (response.ok) toast.success('Adresse e-mail vérifiée');
+      if (response.ok) {
+        setUser(await response.json());
+        toast.success('Adresse e-mail vérifiée');
+      }
       else { toast.error('Adresse e-mail non vérifiée'); setIsError(true); }
     } catch (e) {
       console.error(e); setIsError(true);
