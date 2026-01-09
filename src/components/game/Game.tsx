@@ -61,7 +61,6 @@ export default function Game({ gameId }: { readonly gameId: string }) {
   const [isForfeit, setIsForfeit] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [previousTurn, setPreviousTurn] = useState<string | null>(null);
   const [previousOpponentAttacks, setPreviousOpponentAttacks] = useState<number>(0);
 
   // Récupérer l'ID utilisateur depuis le backend
@@ -152,25 +151,6 @@ export default function Game({ gameId }: { readonly gameId: string }) {
 
   console.log('currentPlayer', currentPlayer);
   console.log('opponentPlayer', opponentPlayer);
-
-  // Détecter les changements de tour et afficher un toast
-  useEffect(() => {
-    if (currentTurn && gameStatus === "IN_GAME" && previousTurn !== null && currentTurn !== previousTurn) {
-      const userId = currentUserId || user?.id;
-      if (currentTurn === userId) {
-        toast.success("C'est votre tour !", {
-          duration: 1000,
-        });
-      } else {
-        toast.info("Tour de l'adversaire", {
-          duration: 1000,
-        });
-      }
-    }
-    if (currentTurn) {
-      setPreviousTurn(currentTurn);
-    }
-  }, [currentTurn, gameStatus, previousTurn, currentUserId, user?.id]);
 
   // Détecter quand l'adversaire nous attaque
   useEffect(() => {

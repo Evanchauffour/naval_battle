@@ -150,7 +150,7 @@ export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, c
         <div className="text-sm text-foreground bg-muted px-4 py-2 text-center font-semibold border-b border-border flex items-center justify-between">
           <span>Grille adverse</span>
           {isYourTurn !== undefined && (
-            <span className="text-xs font-normal text-muted-foreground">
+            <span className={`text-xs font-bold ${isYourTurn ? "text-green-600" : "text-orange-600"}`}>
               {isYourTurn ? "Votre tour" : "Tour adverse"}
             </span>
           )}
