@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { useSocket } from '../../hook/useSocket';
 import { BoatInterface } from './Game';
 import GridItemGame from './GridItemGame';
@@ -114,6 +115,21 @@ export default function OpponentPlayerGrid({ boatsList, selectedCells, gameId, c
     }
 
     setCoordinatesSelected(prev => [...prev, { left: colIndex, top: rowIndex }]);
+
+    // Afficher un toast selon le résultat
+    if (willSinkBoat) {
+      toast.success("💥 Coulé !", {
+        duration: 3000,
+      });
+    } else if (wasHit) {
+      toast.success("🎯 Touché !", {
+        duration: 2500,
+      });
+    } else {
+      toast.error("💨 Raté...", {
+        duration: 2000,
+      });
+    }
 
     // Si c'est un hit mais que le bateau est coulé, on passe le tour (isPlayAgain: false)
     // Sinon, si c'est un hit, on rejoue (isPlayAgain: true)

@@ -189,6 +189,9 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
   }, [gameStatus, regenerateBoats]);
 
   function handleDragEnd(event: DragEndEvent) {
+    // Désactiver le drag pendant la partie
+    if (gameStatus === "IN_GAME") return;
+
     const { active, over } = event;
     if (!over) return;
     const data = over.data?.current as { row?: number; col?: number } | undefined;
@@ -224,6 +227,9 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
   }
 
   const handleRotate = useCallback((boatId: number) => {
+    // Désactiver la rotation pendant la partie
+    if (gameStatus === "IN_GAME") return;
+
     setBoats((prev) => {
       const targetBoat = prev.find(boat => boat.id === boatId);
       if (!targetBoat) return prev;
@@ -261,7 +267,7 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
         return boat;
       });
     });
-  }, []);
+  }, [gameStatus]);
 
   const handleValidate = () => {
     setIsValidate(!isValidate);
@@ -307,7 +313,7 @@ export default function CurrentPlayerGrid({ boatsList, gameId, playerId, selecte
             key={boat.id}
             boatData={boat}
             gridSize={gridSize}
-            disabled={isValidate}
+            disabled={isValidate || gameStatus === "IN_GAME" || isCompact}
             onRotate={handleRotate}
           />
         ))}

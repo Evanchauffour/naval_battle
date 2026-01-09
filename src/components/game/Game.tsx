@@ -2,6 +2,7 @@
 
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { useSocket } from "../../hook/useSocket";
 import { useUser } from "../../store/user.store";
 import CurrentPlayerGrid from "./CurrentPlayerGrid";
@@ -9,7 +10,6 @@ import GameChat from "./GameChat";
 import GameResultModal from "./GameResultModal";
 import { LeaveGameModal } from "./LeaveGameModal";
 import OpponentPlayerGrid from "./OpponentPlayerGrid";
-import TurnNotificationModal from "./TurnNotificationModal";
 
 export interface GameState {
   gameId: string;
@@ -61,8 +61,8 @@ export default function Game({ gameId }: { readonly gameId: string }) {
   const [isForfeit, setIsForfeit] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [showTurnNotification, setShowTurnNotification] = useState(false);
   const [previousTurn, setPreviousTurn] = useState<string | null>(null);
+  const [previousOpponentAttacks, setPreviousOpponentAttacks] = useState<number>(0);
 
   // Récupérer l'ID utilisateur depuis le backend
   useEffect(() => {
@@ -153,19 +153,68 @@ export default function Game({ gameId }: { readonly gameId: string }) {
   console.log('currentPlayer', currentPlayer);
   console.log('opponentPlayer', opponentPlayer);
 
-  // Détecter les changements de tour et afficher la modale
+  // Détecter les changements de tour et afficher un toast
   useEffect(() => {
     if (currentTurn && gameStatus === "IN_GAME" && previousTurn !== null && currentTurn !== previousTurn) {
-      setShowTurnNotification(true);
-      // Réinitialiser après 2.1 secondes pour permettre à la modale de se fermer proprement
-      setTimeout(() => {
-        setShowTurnNotification(false);
-      }, 2100);
+      const userId = currentUserId || user?.id;
+      if (currentTurn === userId) {
+        toast.success("C'est votre tour !", {
+          duration: 1000,
+        });
+      } else {
+        toast.info("Tour de l'adversaire", {
+          duration: 1000,
+        });
+      }
     }
     if (currentTurn) {
       setPreviousTurn(currentTurn);
     }
-  }, [currentTurn, gameStatus, previousTurn]);
+  }, [currentTurn, gameStatus, previousTurn, currentUserId, user?.id]);
+
+  // Détecter quand l'adversaire nous attaque
+  useEffect(() => {
+    if (!opponentPlayer || gameStatus !== "IN_GAME") return;
+
+    const currentAttacks = opponentPlayer.selectedCells?.length || 0;
+
+    if (currentAttacks > previousOpponentAttacks && previousOpponentAttacks > 0) {
+      // L'adversaire vient d'attaquer
+      const lastAttack = opponentPlayer.selectedCells[currentAttacks - 1];
+
+      // Vérifier si notre bateau a été touché
+      const wasHit = currentPlayer?.ships.some(boat =>
+        boat.coordinates.some(coord =>
+          coord.left === lastAttack.left && coord.top === lastAttack.top
+        )
+      );
+
+      if (wasHit) {
+        // Vérifier si un bateau vient d'être coulé
+        const hitBoat = currentPlayer?.ships.find(boat =>
+          boat.coordinates.some(coord => coord.left === lastAttack.left && coord.top === lastAttack.top)
+        );
+
+        if (hitBoat) {
+          const isBoatSunk = hitBoat.coordinates.every(coord =>
+            opponentPlayer.selectedCells.some(sel => sel.left === coord.left && sel.top === coord.top)
+          );
+
+          if (isBoatSunk) {
+            toast.error("💥 Votre bateau a été coulé !", {
+              duration: 3000,
+            });
+          } else {
+            toast.warning("🎯 Vous avez été touché !", {
+              duration: 2500,
+            });
+          }
+        }
+      }
+    }
+
+    setPreviousOpponentAttacks(currentAttacks);
+  }, [opponentPlayer, currentPlayer, gameStatus, previousOpponentAttacks]);
 
 
   if (!currentPlayer || !opponentPlayer) {
@@ -184,10 +233,6 @@ export default function Game({ gameId }: { readonly gameId: string }) {
         gameStatus={gameStatus}
         gameId={gameId}
         onClose={() => setShowLeaveModal(false)}
-      />
-      <TurnNotificationModal
-        isYourTurn={currentPlayer?.userId === currentTurn}
-        show={showTurnNotification}
       />
       <div className="flex h-full w-full relative">
         {gameStatus === "IN_GAME" ? (
