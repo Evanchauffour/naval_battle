@@ -1,10 +1,11 @@
 'use client'
 
+import { cn } from "@/lib/utils";
 import { History, HomeIcon, List, LogOut, Menu, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { logout } from "../app/actions/auth";
+import { redirect, usePathname } from "next/navigation";
+import { useState } from "react";
 import { useUser } from "../store/user.store";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -16,8 +17,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
 
 export default function MobileSidebar() {
   const [open, setOpen] = useState(false);
@@ -25,8 +24,19 @@ export default function MobileSidebar() {
   const { user } = useUser();
 
   const handleLogout = async () => {
-    await logout();
-    setOpen(false);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    if (response.ok) {
+      setOpen(false);
+      redirect('/signin');
+    } else {
+      console.error('Failed to logout');
+    }
   }
 
   const getUserInitials = () => {
