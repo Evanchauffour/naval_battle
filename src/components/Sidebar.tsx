@@ -4,8 +4,7 @@ import { cn } from "@/lib/utils";
 import { History, HomeIcon, List, LogOut, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { logout } from "../app/actions/auth";
+import { redirect, usePathname } from "next/navigation";
 import { useUser } from "../store/user.store";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -16,7 +15,18 @@ export default function Sidebar() {
   const { user } = useUser();
 
   const handleLogout = async () => {
-    await logout();
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    if (response.ok) {
+      redirect('/signin');
+    } else {
+      console.error('Failed to logout');
+    }
   }
 
   const getUserInitials = () => {
